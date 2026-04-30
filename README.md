@@ -1,6 +1,6 @@
-# 🚗 Arreda - Sistema de Caronas
+# 🚗 Arreda - Sistema de Caronas 
 
-> **Arreda** é uma plataforma moderna para gestão de caronas, focada em segurança e praticidade. Desenvolvida com Spring Boot 3 e Java 21.
+> **Arreda** é uma plataforma moderna para gestão de caronas, desenvolvida por alunos do IFMG pensando na questão de acessibilidade da própria instituição, a plataforma é focada em segurança e praticidade. Desenvolvida com Spring Boot 3 e Java 21.
 
 ---
 
@@ -46,4 +46,7 @@ O projeto segue o padrão de **Arquitetura em Camadas**:
 ---
 
 ## 👥 Equipe
+- **Carlos Eduardo** - *Lider da equipe*
 - **João Vieira** - *Responsável técnico*
+- **João Vitor** -*Responsável pela apresentação*
+- **Victor Fernandes** - *Responsável pela documentação* 
