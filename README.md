@@ -4,7 +4,7 @@
 
 ---
 
-## 📋 Sobre o Projeto
+### 📋 Sobre o Projeto
 O Arreda conecta motoristas e passageiros de forma eficiente. O foco inicial é o ambiente universitário/corporativo, onde a confiança é a base para o compartilhamento de viagens.
 
 ### 🛠️ Tecnologias Utilizadas
@@ -15,7 +15,33 @@ O Arreda conecta motoristas e passageiros de forma eficiente. O foco inicial é 
 
 ---
 
-## 🚀 Como Executar o Projeto
+### 🗺️ [Roadmap de Desenvolvimento (`ROADMAP.md`)](./ROADMAP.md)
+
+**Para saber o que estamos construindo e qual é o rumo do projeto.**
+
+- Entenda as grandes fases lógicas: `Caronas` e `Reservas`.
+- Acompanhe o que já foi finalizado e veja a lista das tarefas (_features_) que a equipe ainda fará.
+
+
+---
+
+### 🏗️ [Arquitetura do Sistema (`ARCHITECTURE.md`)](./ARCHITECTURE.md)
+
+**Para entender a estrutura do banco de dados e as regras do código.**
+- O Diagrama de Banco de Dados (Entidade-Relacionamento) mostrando visualmente como as tabelas se conectam.
+- Boas práticas e padrões de código essenciais que nossa equipe usa para manter a API rápida e organizada.
+---
+
+### 🤝 [Diretrizes de Contribuição (`COMMIT_GUIDE.md`)](./COMMIT_GUIDE.md)
+
+**Para saber a forma correta de subir o seu trabalho concluído para o GitHub.**
+
+- Padrão das mensagens dos Commits (`feat:`, `fix:`, `docs:`, etc).
+- O passo a passo de como criar _branches_ e abrir de forma segura um _Pull Request_ (PR).
+
+---
+
+### 🚀 Como Executar o Projeto
 
 ### Pré-requisitos
 - **JDK 21** instalado.
@@ -33,15 +59,6 @@ O Arreda conecta motoristas e passageiros de forma eficiente. O foco inicial é 
     ```
 3.  **Rode a aplicação:**
     Abra o projeto no IntelliJ e execute a classe `ArredaApplication.java`.
-
----
-
-## 🏗️ Arquitetura do Sistema
-O projeto segue o padrão de **Arquitetura em Camadas**:
-1. **Controller:** Porta de entrada (API REST).
-2. **Service:** Regras de negócio e validações.
-3. **Repository:** Comunicação com o Banco de Dados.
-4. **Model (Entity):** Mapeamento das tabelas.
 
 ---
 
