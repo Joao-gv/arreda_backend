@@ -1,4 +1,4 @@
-## 🏛️ Arquitetura do Backend: Arreda
+    ## 🏛️ Arquitetura do Backend: Arreda
 Este documento define o modelo relacional de dados e as diretrizes arquiteturais técnicas do projeto. O modelo abrange os princípios de manutenção, desempenho e a escalabilidade contínua da API do aplicativo visando gerenciar o tráfego da rede de caronas.
 
 Nosso projeto segue a **Arquitetura em Camadas**. O objetivo desse padrão é a *Separação de Responsabilidades*: cada pasta faz apenas uma coisa específica. Se der erro no banco de dados, sabemos exatamente em qual pasta procurar.
