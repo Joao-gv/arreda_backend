@@ -17,11 +17,11 @@ public class UsuarioService {
             throw new IllegalArgumentException("Erro: O nome do usuário é obrigatório.");
         }
 
-        if (usuario.getSenha() == null || usuario.getSenha().trim().isEmpty()) {
+        if (usuario.getSenhaHash() == null || usuario.getSenhaHash().trim().isEmpty()) {
             throw new IllegalArgumentException("Erro: A senha é obrigatória.");
         }
 
-        if (usuario.getSenha().length() < 6) {
+        if (usuario.getSenhaHash().length() < 6) {
             throw new IllegalArgumentException("Erro: A senha deve conter no mínimo 6 caracteres.");
         }
 
