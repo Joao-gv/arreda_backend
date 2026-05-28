@@ -59,6 +59,12 @@ O Arreda conecta motoristas e passageiros de forma eficiente. O foco inicial é 
     ```
 3.  **Rode a aplicação:**
     Abra o projeto no IntelliJ e execute a classe `ArredaApplication.java`.
+---
+
+### Para testar as rotas da aplicação
+Estamos utilizando o Swagger, portanto basta acessar a seguinte url:
+
+    http://localhost:8080/swagger-ui.html
 
 ---
 
