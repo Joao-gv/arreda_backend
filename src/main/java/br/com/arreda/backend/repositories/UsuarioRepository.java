@@ -1,6 +1,7 @@
 package br.com.arreda.backend.repositories;
 
 import br.com.arreda.backend.models.Usuario;
+import jakarta.validation.constraints.Email;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      * @return true se o e-mail já estiver em uso, false caso contrário
      */
     boolean existsByEmail(String email);
+    String findByEmail(String email);
 }
