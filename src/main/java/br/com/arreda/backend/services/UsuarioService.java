@@ -1,47 +1,42 @@
 package br.com.arreda.backend.services;
+
+import br.com.arreda.backend.dto.UsuarioCreateDTO;
 import br.com.arreda.backend.models.Usuario;
 import br.com.arreda.backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
-import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
 
-    private final  UsuarioRepository repository;
-    private final PasswordEncoder passwordEnconder;
+    private final UsuarioRepository repository;
+    private final PasswordEncoder passwordEncoder; // Escrito corretamente e injetado pelo Lombok
 
-    public boolean salvarUsuario(@NonNull Usuario usuario){
+    @Transactional
+    public Usuario salvarUsuario(UsuarioCreateDTO dto) {
 
-        if (usuario.getNome() == null || usuario.getNome().trim().isEmpty()) {
-            throw new IllegalArgumentException("Erro: O nome do usuário é obrigatório.");
-        }
+        // 1. Formata o e-mail para minúsculas
+        String emailFormatado = dto.getEmail().toLowerCase().trim();
 
-        if (usuario.getSenhaHash() == null || usuario.getSenhaHash().trim().isEmpty()) {
-            throw new IllegalArgumentException("Erro: A senha é obrigatória.");
-        }
-
-        if (usuario.getSenhaHash().length() < 6) {
-            throw new IllegalArgumentException("Erro: A senha deve conter no mínimo 6 caracteres.");
-        }
-
-        if (usuario.getEmail() != null){
-            usuario.setEmail(usuario.getEmail().toLowerCase());
-        }
-
-        boolean existingUserEmail = repository.existsByEmail(usuario.getEmail());
-
-        if (existingUserEmail) {
+        // 2. Verifica se o e-mail já existe
+        if (repository.existsByEmail(emailFormatado)) {
             throw new IllegalArgumentException("Erro: O e-mail informado já está cadastrado.");
         }
 
-        String senhaCriptograda = passwordEnconder.encode(usuario.getSenhaHash());
-        usuario.setSenhaHash(senhaCriptograda);
+        // 3. Criptografa a senha
+        String senhaCriptografada = passwordEncoder.encode(dto.getSenha());
 
-        repository.save(usuario);
-        return true;
+        // 4. Mapeia os dados do DTO para a Entidade
+        Usuario usuario = new Usuario();
+        usuario.setNome(dto.getNome());
+        usuario.setEmail(emailFormatado);
+        usuario.setSenhaHash(senhaCriptografada);
+        usuario.setTelefone(dto.getTelefone()); // Campo novo trazido da branch do seu colega
 
+        // 5. Salva e retorna o usuário
+        return repository.save(usuario);
     }
 }
