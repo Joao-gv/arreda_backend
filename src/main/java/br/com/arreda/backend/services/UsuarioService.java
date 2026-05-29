@@ -19,7 +19,7 @@ public class UsuarioService {
     public Usuario salvarUsuario(UsuarioCreateDTO dto) {
 
         // 1. Formata o e-mail para minúsculas
-        String emailFormatado = dto.getEmail().toLowerCase().trim();
+        String emailFormatado = dto.email().toLowerCase().trim();
 
         // 2. Verifica se o e-mail já existe
         if (repository.existsByEmail(emailFormatado)) {
@@ -27,14 +27,14 @@ public class UsuarioService {
         }
 
         // 3. Criptografa a senha
-        String senhaCriptografada = passwordEncoder.encode(dto.getSenha());
+        String senhaCriptografada = passwordEncoder.encode(dto.senha());
 
         // 4. Mapeia os dados do DTO para a Entidade
         Usuario usuario = new Usuario();
-        usuario.setNome(dto.getNome());
+        usuario.setNome(dto.nome());
         usuario.setEmail(emailFormatado);
         usuario.setSenhaHash(senhaCriptografada);
-        usuario.setTelefone(dto.getTelefone()); // Campo novo trazido da branch do seu colega
+        usuario.setTelefone(dto.telefone()); // Campo novo trazido da branch do seu colega
 
         // 5. Salva e retorna o usuário
         return repository.save(usuario);
