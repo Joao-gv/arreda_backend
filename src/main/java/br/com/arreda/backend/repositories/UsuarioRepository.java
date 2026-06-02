@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
@@ -16,5 +18,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      * @return true se o e-mail já estiver em uso, false caso contrário
      */
     boolean existsByEmail(String email);
-    String findByEmail(String email);
+    Optional<Usuario> findByEmail(String email);
 }
