@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UsuarioController {
    private final UsuarioService usuarioService;
-   @PostMapping
+   @PostMapping("register")
     public ResponseEntity<?> registrarUsuario(@Valid @RequestBody UsuarioCreateDTO dto){
        try{
            usuarioService.salvarUsuario(dto);
