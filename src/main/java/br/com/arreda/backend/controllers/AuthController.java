@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -25,20 +27,25 @@ public class AuthController {
     private TokenService tokenService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody @Valid LoginDTO loginDTO) {
-        // 1. Busca o usuário pelo e-mail
+    public ResponseEntity<?> login(@RequestBody @Valid LoginDTO loginDTO) {
         Usuario usuario = usuarioRepository.findByEmail(loginDTO.email())
-                .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
-        // 2. Compara a senha digitada (texto puro) com o Hash do banco
-        if (!passwordEncoder.matches(loginDTO.senha(), usuario.getSenhaHash())) {
-            // Se a senha estiver errada, retorna 401 Unauthorized
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
+                .orElse(null);
+
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("erro", "Email ou senha inválidos."));
         }
 
-        // 3. Se tudo estiver correto, gera o token JWT
+
+        if (!passwordEncoder.matches(loginDTO.senha(), usuario.getSenhaHash())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("erro", "Email ou senha inválidos"));
+        }
+
+        //Se tudo estiver correto, gera o token JWT
         String token = tokenService.gerarToken(usuario);
 
-        // 4. Retorna o token no corpo da resposta
-        return ResponseEntity.ok(token);
+        //Retorna o token estruturado dentro de um objeto JSON
+        return ResponseEntity.ok(Map.of("token", token));
     }
 }
