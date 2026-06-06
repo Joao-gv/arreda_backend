@@ -2,6 +2,7 @@ package br.com.arreda.backend.controllers;
 
 import br.com.arreda.backend.dto.UsuarioCreateDTO;
 import br.com.arreda.backend.services.UsuarioService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/usuarios")
+@Tag(name = "Cadastro", description = "Cadastrar novos usuários")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class UsuarioController {
