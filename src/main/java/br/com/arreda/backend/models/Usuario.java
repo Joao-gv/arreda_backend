@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -43,5 +44,6 @@ public class Usuario {
     // Relacionamento 1:1 Bidirecional.
     //chave estrangeira (usuario_id) fica na tabela de PerfilMotorista, no atributo 'usuario'.
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private PerfilMotorista perfilMotorista;
 }

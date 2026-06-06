@@ -47,6 +47,6 @@ public class TokenService {
 
     private Instant gerarDataExpiracao() {
         // Pega a hora atual, soma 2 horas e converte para o fuso horário de Brasília (-03:00)
-        return Instant.now().plusSeconds(120);
+        return Instant.now().plusSeconds(12000);
     }
 }
