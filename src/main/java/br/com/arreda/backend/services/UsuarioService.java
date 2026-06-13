@@ -34,7 +34,7 @@ public class UsuarioService {
         usuario.setNome(dto.nome());
         usuario.setEmail(emailFormatado);
         usuario.setSenhaHash(senhaCriptografada);
-        usuario.setTelefone(dto.telefone()); // Campo novo trazido da branch do seu colega
+        usuario.setTelefone(dto.telefone());
 
         // 5. Salva e retorna o usuário
         return repository.save(usuario);

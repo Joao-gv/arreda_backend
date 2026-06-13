@@ -34,7 +34,7 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(refreshToken);
 
     }
-
+    @Transactional
     public RefreshToken verificarExpiracao(RefreshToken token) {
         if (token.getDataExpiracao().isBefore(LocalDateTime.now())) {
             refreshTokenRepository.delete(token); // Limpa do banco se estiver expirado
