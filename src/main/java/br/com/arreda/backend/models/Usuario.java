@@ -1,5 +1,6 @@
 package br.com.arreda.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,6 +44,7 @@ public class Usuario {
 
     // Relacionamento 1:1 Bidirecional.
     //chave estrangeira (usuario_id) fica na tabela de PerfilMotorista, no atributo 'usuario'.
+    @JsonIgnore //Impede que a carona de um loop na hora de adicionar o json
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
     @ToString.Exclude
     private PerfilMotorista perfilMotorista;
