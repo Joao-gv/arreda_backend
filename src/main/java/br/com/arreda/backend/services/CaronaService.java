@@ -34,6 +34,11 @@ public class CaronaService {
                     "Erro: o veículo selecionado não pertence ao seu perfil de motorista.");
         }
 
+        if(veiculo.getCapacidadePassageiros() < dto.vagas()){
+            throw new IllegalArgumentException(
+                    "Erro: o número de vagas informado é maior que a do veículo.");
+        }
+
         Carona carona = new Carona();
         carona.setOrigem(dto.origem());
         carona.setDestino(dto.destino());
