@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ParticipacaoCaronaRepository extends JpaRepository<ParticipacaoCarona, Long> {
+
+    boolean existsByUsuarioIdAndCaronaId(Long usuarioId, Long caronaId);
+
 }

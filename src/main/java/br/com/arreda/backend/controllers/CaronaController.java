@@ -18,11 +18,36 @@ public class CaronaController {
     private final CaronaService caronaService;
 
     @PostMapping
-    public ResponseEntity<Object> publicarCarona(@RequestBody @Valid CaronaCreateDTO dto) {
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public ResponseEntity<Object> publicarCarona(
+            @RequestBody @Valid CaronaCreateDTO dto) {
 
-        var caronaSalva = caronaService.publicarCarona(dto, usuarioLogado);
+        Usuario usuarioLogado =
+                (Usuario) SecurityContextHolder.getContext()
+                        .getAuthentication()
+                        .getPrincipal();
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(caronaSalva);
+        var caronaSalva =
+                caronaService.publicarCarona(dto, usuarioLogado);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(caronaSalva);
+    }
+
+    @PostMapping("/{id}/solicitar")
+    public ResponseEntity<Object> solicitarParticipacao(
+            @PathVariable Long id) {
+
+        Usuario usuarioLogado =
+                (Usuario) SecurityContextHolder.getContext()
+                        .getAuthentication()
+                        .getPrincipal();
+
+        var solicitacao =
+                caronaService.solicitarParticipacao(id, usuarioLogado);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(solicitacao);
     }
 }
