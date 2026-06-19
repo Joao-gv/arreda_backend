@@ -1,5 +1,6 @@
 package br.com.arreda.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,6 +32,7 @@ public class Veiculo {
     @Column(nullable = false)
     private int capacidadePassageiros;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "perfil_motorista_id", nullable = false)
     private PerfilMotorista perfilMotorista;

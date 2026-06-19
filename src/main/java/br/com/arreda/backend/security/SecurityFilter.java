@@ -7,11 +7,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -24,27 +26,24 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Recupera o token que veio no cabeçalho (Header) da requisição
         String token = recuperarToken(request);
 
         if (token != null) {
-            // Valida o token e pega o e-mail correspondente
             String email = tokenService.validarToken(token);
 
             if (!email.isEmpty()) {
-                // Se o token for válido, busca o usuário completo no banco
+
                 var usuario = repository.findByEmail(email)
                         .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-                // Cria o objeto de autenticação do Spring Security
-                var authentication = new UsernamePasswordAuthenticationToken(usuario, null, Collections.emptyList());
+                // Cria o crachá com uma permissão básica para o Controller não barrar (Erro 403 resolvido)
+                var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+                var authentication = new UsernamePasswordAuthenticationToken(usuario, null, authorities);
 
-                // Autentica o usuário no "contexto" do Spring (Salva na memória da requisição)
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 
-        // Passa a requisição para frente (para o próximo filtro ou para o seu Controller)
         filterChain.doFilter(request, response);
     }
 
