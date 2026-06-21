@@ -3,6 +3,7 @@ package br.com.arreda.backend.controllers;
 import br.com.arreda.backend.dto.VeiculoCreateDTO;
 import br.com.arreda.backend.models.Usuario;
 import br.com.arreda.backend.services.VeiculoService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/motorista/veiculos")
+@Tag(name = "Veículos", description = "Todos os endpoints para adicionar e gerenciar veículos")
 @RequiredArgsConstructor
 public class VeiculoController {
 
