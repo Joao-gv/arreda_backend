@@ -1,21 +1,34 @@
 package br.com.arreda.backend.controllers;
 
+import br.com.arreda.backend.dto.HistoricoCaronaDTO;
 import br.com.arreda.backend.dto.UsuarioCreateDTO;
+import br.com.arreda.backend.models.Carona;
+import br.com.arreda.backend.models.Usuario;
+import br.com.arreda.backend.services.CaronaService;
 import br.com.arreda.backend.services.UsuarioService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("api/usuarios")
-@Tag(name = "Cadastro", description = "Cadastrar novos usuários")
+@Tag(name = "Usuário", description = "Todos os endpoints relacionados ao usuário")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class UsuarioController {
    private final UsuarioService usuarioService;
+
+    private final CaronaService caronaService;
+
+
    @PostMapping("register")
     public ResponseEntity<?> registrarUsuario(@Valid @RequestBody UsuarioCreateDTO dto){
        try{
@@ -28,4 +41,18 @@ public class UsuarioController {
                    .body(e.getMessage());
        }
    }
+
+    @GetMapping("/me/caronas")
+    public ResponseEntity<HistoricoCaronaDTO> obterHistoricoCaronas() {
+
+        Usuario usuarioLogado =
+                (Usuario) SecurityContextHolder.getContext()
+                        .getAuthentication()
+                        .getPrincipal();
+
+        Long idLogado = usuarioLogado.getId();
+
+        HistoricoCaronaDTO historico = caronaService.buscarHistoricoUsuario(idLogado);
+        return ResponseEntity.ok(historico);
+    }
 }
