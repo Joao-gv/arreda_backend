@@ -1,6 +1,8 @@
 package br.com.arreda.backend.services;
 
 import br.com.arreda.backend.dto.PerfilMotoristaCreateDTO;
+import br.com.arreda.backend.exception.RecursoNaoEncontradoException;
+import br.com.arreda.backend.exception.RegraDeNegocioException;
 import br.com.arreda.backend.models.PerfilMotorista;
 import br.com.arreda.backend.models.Usuario;
 import br.com.arreda.backend.repositories.PerfilMotoristaRepository;
@@ -18,10 +20,10 @@ public class PerfilMotoristaService {
     public PerfilMotorista criarPerfil(PerfilMotoristaCreateDTO dto, String emailUsuarioLogado){
     //Busca o usuário no banco de dados usando o e-mail que veio do Token JWT
         Usuario usuario = usuarioRepository.findByEmail(emailUsuarioLogado)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario não encontrado."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuario não encontrado."));
     // Regra de negócio: Um usuário só pode ter UM perfil de motorista
         if (perfilRepository.findByUsuarioId(usuario.getId()).isPresent()) {
-            throw new IllegalArgumentException("Erro: Você já possui um perfil de motorista cadastrado.");
+            throw new RegraDeNegocioException("Você já possui um perfil de motorista cadastrado.");
         }
     //  Monta o objeto
         PerfilMotorista perfil = new PerfilMotorista();

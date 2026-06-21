@@ -11,11 +11,16 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Captura nossos erros de negocio (Status 400 - Bad Request)
-    @ExceptionHandler(RegraDeNegocioException.class)
-    public ResponseEntity<ErroPadraoDTO> tratarErroRegraDeNegocio(RegraDeNegocioException ex){
-        var erro = new ErroPadraoDTO(ex.getMessage(),HttpStatus.NOT_FOUND.value());
+    @ExceptionHandler(RecursoNaoEncontradoException.class)
+    public ResponseEntity<ErroPadraoDTO> handleRecursoNaoEncontrado(RecursoNaoEncontradoException ex) {
+        ErroPadraoDTO erro = new ErroPadraoDTO(ex.getMessage(), HttpStatus.NOT_FOUND.value());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
+    }
+
+    @ExceptionHandler(RegraDeNegocioException.class)
+    public ResponseEntity<ErroPadraoDTO> handleRegraDeNegocio(RegraDeNegocioException ex) {
+        ErroPadraoDTO erro = new ErroPadraoDTO(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
     }
 
     // Captura os erros de validação dos DTOs gerados pelo @Valid
