@@ -3,6 +3,7 @@ package br.com.arreda.backend.controllers;
 
 import br.com.arreda.backend.dto.PerfilMotoristaCreateDTO;
 import br.com.arreda.backend.services.PerfilMotoristaService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import br.com.arreda.backend.models.Usuario;
 
 @RestController
 @RequestMapping("/api/motorista/perfil")
+@Tag(name = "Motorista", description = "Endpoints para criar perfil de motorista")
 @RequiredArgsConstructor
 public class PerfilMotoristaController {
     private final PerfilMotoristaService perfilMotoristaService;
