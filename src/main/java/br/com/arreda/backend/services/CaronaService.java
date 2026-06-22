@@ -6,6 +6,8 @@ import br.com.arreda.backend.dto.HistoricoCaronaDTO;
 import br.com.arreda.backend.enums.StatusCarona;
 import br.com.arreda.backend.enums.StatusParticipacao;
 import br.com.arreda.backend.enums.TipoParticipacao;
+import br.com.arreda.backend.exception.RecursoNaoEncontradoException;
+import br.com.arreda.backend.exception.RegraDeNegocioException;
 import br.com.arreda.backend.models.*;
 import br.com.arreda.backend.dto.CaronaResponseDTO;
 import org.springframework.data.domain.Page;
@@ -35,20 +37,20 @@ public class CaronaService {
     public Carona publicarCarona(CaronaCreateDTO dto, Usuario usuarioLogado) {
 
         PerfilMotorista motorista = perfilMotoristaRepository.findByUsuarioId(usuarioLogado.getId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Acesso negado: Você precisa ter um perfil de motorista para publicar caronas."));
+                .orElseThrow(() -> new RegraDeNegocioException(
+                        "Você precisa ter um perfil de motorista para publicar caronas."));
 
         Veiculo veiculo = veiculoRepository.findById(dto.veiculoId())
-                .orElseThrow(() -> new IllegalArgumentException("Erro: Veiculo não encontrado."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Veiculo não encontrado."));
 
         if (!veiculo.getPerfilMotorista().getId().equals(motorista.getId())) {
-            throw new IllegalArgumentException(
-                    "Erro: o veículo selecionado não pertence ao seu perfil de motorista.");
+            throw new RegraDeNegocioException(
+                    "O veículo selecionado não pertence ao seu perfil de motorista.");
         }
 
         if (veiculo.getCapacidadePassageiros() < dto.vagas()) {
-            throw new IllegalArgumentException(
-                    "Erro: o número de vagas informado é maior que a do veículo.");
+            throw new RegraDeNegocioException(
+                    "O número de vagas informado é maior que a do veículo.");
         }
 
         Carona carona = new Carona();
@@ -78,20 +80,20 @@ public class CaronaService {
     public ParticipacaoCarona solicitarParticipacao(Long caronaId, Usuario usuarioLogado) {
 
         Carona carona = caronaRepository.findById(caronaId)
-                .orElseThrow(() -> new IllegalArgumentException("Carona não encontrada."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Carona não encontrada."));
 
         if (carona.getStatus() != StatusCarona.ATIVA) {
-            throw new IllegalArgumentException(
+            throw new RegraDeNegocioException(
                     "A carona não está disponível para solicitações.");
         }
 
         if (carona.getVagasDisponiveis() <= 0) {
-            throw new IllegalArgumentException("Não há vagas disponíveis.");
+            throw new RegraDeNegocioException("Não há vagas disponíveis.");
         }
 
         if (carona.getPerfilMotorista().getUsuario().getId()
                 .equals(usuarioLogado.getId())) {
-            throw new IllegalArgumentException(
+            throw new RegraDeNegocioException(
                     "Você não pode solicitar participação na sua própria carona.");
         }
 
@@ -102,7 +104,7 @@ public class CaronaService {
                 );
 
         if (jaParticipa) {
-            throw new IllegalArgumentException(
+            throw new RegraDeNegocioException(
                     "Você já possui uma solicitação ou participação nesta carona.");
         }
 
@@ -120,26 +122,26 @@ public class CaronaService {
     public void aceitarPassageiro(Long idCarona, Long idParticipacao, Long idUsuarioAutenticado) {
 
         Carona carona = caronaRepository.findById(idCarona)
-                .orElseThrow(() -> new IllegalArgumentException("Carona não encontrada."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Carona não encontrada."));
 
         Long idMotoristaDaCarona = carona.getPerfilMotorista().getUsuario().getId();
         if (!idMotoristaDaCarona.equals(idUsuarioAutenticado)) {
-            throw new IllegalArgumentException("Apenas o motorsta desta carona pode aceitar passageiros.");
+            throw new RegraDeNegocioException("Apenas o motorsta desta carona pode aceitar passageiros.");
         }
 
         ParticipacaoCarona participacao = participacaoCaronaRepository.findById(idParticipacao)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitação de carona não encontrada."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Solicitação de carona não encontrada."));
 
         if (!participacao.getCarona().getId().equals(idCarona)) {
-            throw new IllegalArgumentException("Esta solicitação não pertence à carona informada.");
+            throw new RegraDeNegocioException("Esta solicitação não pertence à carona informada.");
         }
 
         if (carona.getVagasDisponiveis() <= 0) {
-            throw new IllegalArgumentException("Não há mais vagas disponíveis nesta carona.");
+            throw new RegraDeNegocioException("Não há mais vagas disponíveis nesta carona.");
         }
 
         if (participacao.getStatus() != StatusParticipacao.PENDENTE) {
-            throw new IllegalArgumentException("Esta solicitação já foi respondida anteriormente.");
+            throw new RegraDeNegocioException("Esta solicitação já foi respondida anteriormente.");
         }
 
         participacao.setStatus(StatusParticipacao.CONFIRMADO);
@@ -158,23 +160,23 @@ public class CaronaService {
     public void rejeitarPassageiro(Long idCarona, Long idParticipacao, Long idUsuarioAutenticado) {
 
         Carona carona = caronaRepository.findById(idCarona)
-                .orElseThrow(() -> new IllegalArgumentException("Carona não encontrada."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Carona não encontrada."));
 
         // Valida se quem está rejeitando é o motorista
         Long idMotoristaDaCarona = carona.getPerfilMotorista().getUsuario().getId();
         if (!idMotoristaDaCarona.equals(idUsuarioAutenticado)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Apenas o motorista desta carona pode rejeitar passageiros.");
+            throw new RegraDeNegocioException("Apenas o motorista desta carona pode rejeitar passageiros.");
         }
 
         ParticipacaoCarona participacao = participacaoCaronaRepository.findById(idParticipacao)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitação de participação não encontrada."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Solicitação de participação não encontrada."));
 
         if (!participacao.getCarona().getId().equals(idCarona)) {
-            throw new IllegalArgumentException("Esta solicitação não pertence à carona informada.");
+            throw new RecursoNaoEncontradoException("Esta solicitação não pertence à carona informada.");
         }
 
         if (participacao.getStatus() != StatusParticipacao.PENDENTE) {
-            throw new IllegalArgumentException("Esta solicitação já foi respondida anteriormente.");
+            throw new RegraDeNegocioException("Esta solicitação já foi respondida anteriormente.");
         }
 
         // Altera o status para REJEITADO (Aqui as vagas da carona NÃO se alteram)

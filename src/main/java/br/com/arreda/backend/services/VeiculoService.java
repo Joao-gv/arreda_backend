@@ -1,6 +1,8 @@
 package br.com.arreda.backend.services;
 
 import br.com.arreda.backend.dto.VeiculoCreateDTO;
+import br.com.arreda.backend.exception.RecursoNaoEncontradoException;
+import br.com.arreda.backend.exception.RegraDeNegocioException;
 import br.com.arreda.backend.dto.VeiculoResponseDTO;
 import br.com.arreda.backend.models.PerfilMotorista;
 import br.com.arreda.backend.models.Usuario;
@@ -26,15 +28,15 @@ public class VeiculoService {
     public Veiculo cadastrarVeiculo(VeiculoCreateDTO dto, String emailUsuarioLogado) {
         // Busca o usuário autenticado
         Usuario usuario = usuarioRepository.findByEmail(emailUsuarioLogado)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado."));
 
         //Busca o perfil de motorista do usuário
         PerfilMotorista perfilMotorista = perfilRepository.findByUsuarioId(usuario.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Erro: Você precisa criar um Perfil de Motorista com CNH antes de cadastrar um veículo."));
+                .orElseThrow(() -> new RegraDeNegocioException("Você precisa criar um Perfil de Motorista com CNH antes de cadastrar um veículo."));
 
         // Placas devem ser únicas no sistema
         if (veiculoRepository.existsByPlaca(dto.placa())) {
-            throw new IllegalArgumentException("Erro: Um veículo com esta placa já está cadastrado no sistema.");
+            throw new RegraDeNegocioException("Um veículo com esta placa já está cadastrado no sistema.");
         }
 
         // Monta o objeto veículo mapeando-o para o motorista dono
@@ -53,7 +55,7 @@ public class VeiculoService {
     public List<VeiculoResponseDTO> listarVeiculosDoUsuario(Long idUsuaruioAutenticado){
 
         if(!perfilRepository.existsById(idUsuaruioAutenticado)){
-            throw new IllegalArgumentException("O usuario nao possui perfil de mottorista cadastrado.");
+            throw new RegraDeNegocioException("O usuario nao possui perfil de motorista cadastrado.");
         }
 
         List<Veiculo> veiculos = veiculoRepository.findAllByPerfilMotoristaUsuarioId(idUsuaruioAutenticado);

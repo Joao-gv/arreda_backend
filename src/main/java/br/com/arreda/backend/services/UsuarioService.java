@@ -1,6 +1,7 @@
 package br.com.arreda.backend.services;
 
 import br.com.arreda.backend.dto.UsuarioCreateDTO;
+import br.com.arreda.backend.exception.RegraDeNegocioException;
 import br.com.arreda.backend.models.Usuario;
 import br.com.arreda.backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class UsuarioService {
 
         // 2. Verifica se o e-mail já existe
         if (repository.existsByEmail(emailFormatado)) {
-            throw new IllegalArgumentException("Erro: O e-mail informado já está cadastrado.");
+            throw new RegraDeNegocioException("O e-mail informado já está cadastrado.");
         }
 
         // 3. Criptografa a senha
