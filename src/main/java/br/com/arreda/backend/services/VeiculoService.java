@@ -1,6 +1,7 @@
 package br.com.arreda.backend.services;
 
 import br.com.arreda.backend.dto.VeiculoCreateDTO;
+import br.com.arreda.backend.dto.VeiculoResponseDTO;
 import br.com.arreda.backend.models.PerfilMotorista;
 import br.com.arreda.backend.models.Usuario;
 import br.com.arreda.backend.models.Veiculo;
@@ -10,6 +11,9 @@ import br.com.arreda.backend.repositories.VeiculoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,5 +48,25 @@ public class VeiculoService {
 
         // Salva no banco de dados
         return veiculoRepository.save(veiculo);
+    }
+    @Transactional(readOnly = true)
+    public List<VeiculoResponseDTO> listarVeiculosDoUsuario(Long idUsuaruioAutenticado){
+
+        if(!perfilRepository.existsById(idUsuaruioAutenticado)){
+            throw new IllegalArgumentException("O usuario nao possui perfil de mottorista cadastrado.");
+        }
+
+        List<Veiculo> veiculos = veiculoRepository.findAllByPerfilMotoristaUsuarioId(idUsuaruioAutenticado);
+
+        return veiculos.stream().map(veiculo ->
+                VeiculoResponseDTO.builder()
+                        .id(veiculo.getId())
+                        .placa(veiculo.getPlaca())
+                        .marca(veiculo.getMarca())
+                        .modelo(veiculo.getModelo())
+                        .cor(veiculo.getCor())
+                        .capacidadePassageiros(veiculo.getCapacidadePassageiros())
+                        .build()
+        ).collect(Collectors.toList());
     }
 }

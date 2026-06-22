@@ -31,7 +31,7 @@ public class CaronaController {
 
     private final CaronaService caronaService;
 
-    @PostMapping
+    @PostMapping("/publicar")
     public ResponseEntity<Object> publicarCarona(
             @RequestBody @Valid CaronaCreateDTO dto) {
 
