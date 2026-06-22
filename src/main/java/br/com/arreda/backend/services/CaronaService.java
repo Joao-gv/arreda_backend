@@ -9,6 +9,11 @@ import br.com.arreda.backend.enums.TipoParticipacao;
 import br.com.arreda.backend.exception.RecursoNaoEncontradoException;
 import br.com.arreda.backend.exception.RegraDeNegocioException;
 import br.com.arreda.backend.models.*;
+import br.com.arreda.backend.dto.CaronaResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import br.com.arreda.backend.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -217,5 +222,30 @@ public class CaronaService {
 
         // 3. Retorna o DTO mestre com as duas listas separadas
         return new HistoricoCaronaDTO(listaComoMotorista, listaComoPassageiro);
+    }
+    @Transactional(readOnly = true)
+    public Page<CaronaResponseDTO> buscarCaronas(String origem, String destino, LocalDate data, Pageable pageable) {
+        LocalDateTime agora = LocalDateTime.now();
+
+        Page<Carona> caronasPage = caronaRepository.findCaronasDisponiveis(origem, destino, data, agora, pageable);
+
+        // Mapeia a entidade para o DTO higienizado
+        return caronasPage.map(carona -> {
+            String nomeCompleto = carona.getPerfilMotorista().getUsuario().getNome();
+            String primeiroNome = (nomeCompleto != null && nomeCompleto.contains(" "))
+                    ? nomeCompleto.split(" ")[0]
+                    : nomeCompleto;
+
+            return new CaronaResponseDTO(
+                    carona.getId(),
+                    carona.getOrigem(),
+                    carona.getDestino(),
+                    carona.getDataHoraPartida(),
+                    carona.getVagasDisponiveis(),
+                    primeiroNome,
+                    carona.getVeiculo().getModelo(),
+                    carona.getVeiculo().getCor()
+            );
+        });
     }
 }

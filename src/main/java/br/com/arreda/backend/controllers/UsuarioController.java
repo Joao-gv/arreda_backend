@@ -2,10 +2,12 @@ package br.com.arreda.backend.controllers;
 
 import br.com.arreda.backend.dto.HistoricoCaronaDTO;
 import br.com.arreda.backend.dto.UsuarioCreateDTO;
+import br.com.arreda.backend.dto.VeiculoResponseDTO;
 import br.com.arreda.backend.models.Carona;
 import br.com.arreda.backend.models.Usuario;
 import br.com.arreda.backend.services.CaronaService;
 import br.com.arreda.backend.services.UsuarioService;
+import br.com.arreda.backend.services.VeiculoService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/usuarios")
@@ -27,6 +30,7 @@ public class UsuarioController {
    private final UsuarioService usuarioService;
 
     private final CaronaService caronaService;
+    private final VeiculoService veiculoService;
 
 
    @PostMapping("register")
@@ -54,5 +58,19 @@ public class UsuarioController {
 
         HistoricoCaronaDTO historico = caronaService.buscarHistoricoUsuario(idLogado);
         return ResponseEntity.ok(historico);
+    }
+
+    @GetMapping("/me/veiculos")
+    public ResponseEntity<List<VeiculoResponseDTO>> listarVeiculos() {
+
+        Usuario usuarioLogado =
+                (Usuario) SecurityContextHolder.getContext()
+                        .getAuthentication()
+                        .getPrincipal();
+
+        Long idLogado = usuarioLogado.getId();
+
+       List<VeiculoResponseDTO> veiculosDTO = veiculoService.listarVeiculosDoUsuario(idLogado);
+        return ResponseEntity.ok(veiculosDTO);
     }
 }
