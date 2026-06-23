@@ -98,6 +98,17 @@ public class CaronaController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{id}/participacoes")
+    public ResponseEntity<java.util.List<br.com.arreda.backend.dto.ParticipacaoResponseDTO>> buscarParticipacoes(@PathVariable Long id) {
+        Usuario usuarioLogado =
+                (Usuario) SecurityContextHolder.getContext()
+                        .getAuthentication()
+                        .getPrincipal();
+
+        var participacoes = caronaService.buscarParticipacoesDaCarona(id, usuarioLogado.getId());
+        return ResponseEntity.ok(participacoes);
+    }
+
     @GetMapping
     public ResponseEntity<Page<CaronaResponseDTO>> listarCaronas(
             @RequestParam(required = false) String origem,

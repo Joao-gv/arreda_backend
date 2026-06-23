@@ -2,12 +2,14 @@ package br.com.arreda.backend.controllers;
 
 import br.com.arreda.backend.dto.HistoricoCaronaDTO;
 import br.com.arreda.backend.dto.UsuarioCreateDTO;
+import br.com.arreda.backend.dto.UsuarioMeDTO;
 import br.com.arreda.backend.dto.VeiculoResponseDTO;
 import br.com.arreda.backend.models.Carona;
 import br.com.arreda.backend.models.Usuario;
 import br.com.arreda.backend.services.CaronaService;
 import br.com.arreda.backend.services.UsuarioService;
 import br.com.arreda.backend.services.VeiculoService;
+import br.com.arreda.backend.repositories.PerfilMotoristaRepository;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +30,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UsuarioController {
    private final UsuarioService usuarioService;
-
-    private final CaronaService caronaService;
-    private final VeiculoService veiculoService;
-
+   private final CaronaService caronaService;
+   private final VeiculoService veiculoService;
+   private final PerfilMotoristaRepository perfilMotoristaRepository;
 
    @PostMapping("register")
     public ResponseEntity<?> registrarUsuario(@Valid @RequestBody UsuarioCreateDTO dto){
@@ -45,6 +46,23 @@ public class UsuarioController {
                    .body(e.getMessage());
        }
    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UsuarioMeDTO> obterUsuarioLogado() {
+        Usuario usuarioLogado =
+                (Usuario) SecurityContextHolder.getContext()
+                        .getAuthentication()
+                        .getPrincipal();
+
+        boolean ehMotorista = perfilMotoristaRepository.findByUsuarioId(usuarioLogado.getId()).isPresent();
+
+        return ResponseEntity.ok(new UsuarioMeDTO(
+                usuarioLogado.getId(),
+                usuarioLogado.getNome(),
+                usuarioLogado.getEmail(),
+                ehMotorista
+        ));
+    }
 
     @GetMapping("/me/caronas")
     public ResponseEntity<HistoricoCaronaDTO> obterHistoricoCaronas() {

@@ -248,4 +248,24 @@ public class CaronaService {
             );
         });
     }
+
+    @Transactional(readOnly = true)
+    public List<br.com.arreda.backend.dto.ParticipacaoResponseDTO> buscarParticipacoesDaCarona(Long idCarona, Long idUsuarioAutenticado) {
+        Carona carona = caronaRepository.findById(idCarona)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Carona não encontrada."));
+
+        Long idMotoristaDaCarona = carona.getPerfilMotorista().getUsuario().getId();
+        if (!idMotoristaDaCarona.equals(idUsuarioAutenticado)) {
+            throw new RegraDeNegocioException("Apenas o motorista desta carona pode visualizar os passageiros.");
+        }
+
+        List<ParticipacaoCarona> participacoes = participacaoCaronaRepository.findAllByCaronaIdAndTipo(idCarona, TipoParticipacao.PASSAGEIRO);
+
+        return participacoes.stream()
+                .map(p -> new br.com.arreda.backend.dto.ParticipacaoResponseDTO(
+                        p.getId(),
+                        p.getUsuario().getNome(),
+                        p.getStatus()
+                )).collect(Collectors.toList());
+    }
 }
