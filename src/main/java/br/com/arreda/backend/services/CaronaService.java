@@ -57,6 +57,7 @@ public class CaronaService {
         carona.setOrigem(dto.origem());
         carona.setDestino(dto.destino());
         carona.setDataHoraPartida(dto.datahoraPartida());
+        carona.setValorSugerido(dto.valorSugerido());
         carona.setVagasDisponiveis(dto.vagas());
         carona.setVeiculo(veiculo);
 
@@ -241,6 +242,7 @@ public class CaronaService {
                     carona.getOrigem(),
                     carona.getDestino(),
                     carona.getDataHoraPartida(),
+                    carona.getValorSugerido(),
                     carona.getVagasDisponiveis(),
                     primeiroNome,
                     carona.getVeiculo().getModelo(),
