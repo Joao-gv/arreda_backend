@@ -57,6 +57,7 @@ public class CaronaService {
         carona.setOrigem(dto.origem());
         carona.setDestino(dto.destino());
         carona.setDataHoraPartida(dto.datahoraPartida());
+        carona.setValorSugerido(dto.valorSugerido());
         carona.setVagasDisponiveis(dto.vagas());
         carona.setVeiculo(veiculo);
 
@@ -241,11 +242,32 @@ public class CaronaService {
                     carona.getOrigem(),
                     carona.getDestino(),
                     carona.getDataHoraPartida(),
+                    carona.getValorSugerido(),
                     carona.getVagasDisponiveis(),
                     primeiroNome,
                     carona.getVeiculo().getModelo(),
                     carona.getVeiculo().getCor()
             );
         });
+    }
+
+    @Transactional(readOnly = true)
+    public List<br.com.arreda.backend.dto.ParticipacaoResponseDTO> buscarParticipacoesDaCarona(Long idCarona, Long idUsuarioAutenticado) {
+        Carona carona = caronaRepository.findById(idCarona)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Carona não encontrada."));
+
+        Long idMotoristaDaCarona = carona.getPerfilMotorista().getUsuario().getId();
+        if (!idMotoristaDaCarona.equals(idUsuarioAutenticado)) {
+            throw new RegraDeNegocioException("Apenas o motorista desta carona pode visualizar os passageiros.");
+        }
+
+        List<ParticipacaoCarona> participacoes = participacaoCaronaRepository.findAllByCaronaIdAndTipo(idCarona, TipoParticipacao.PASSAGEIRO);
+
+        return participacoes.stream()
+                .map(p -> new br.com.arreda.backend.dto.ParticipacaoResponseDTO(
+                        p.getId(),
+                        p.getUsuario().getNome(),
+                        p.getStatus()
+                )).collect(Collectors.toList());
     }
 }

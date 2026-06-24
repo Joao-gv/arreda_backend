@@ -28,6 +28,9 @@ public class Carona {
     private LocalDateTime dataHoraPartida;
 
     @Column(nullable = false)
+    private float valorSugerido;
+
+    @Column(nullable = false)
     private int vagasDisponiveis;
 
     @Column(nullable = false)

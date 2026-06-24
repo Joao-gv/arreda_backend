@@ -7,6 +7,7 @@ public record CaronaResponseDTO(
         String origem,
         String destino,
         LocalDateTime dataHoraPartida,
+        float valorSugerido,
         int vagasDisponiveis,
         String motoristaNome,
         String veiculoModelo,

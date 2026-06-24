@@ -14,6 +14,9 @@ public record CaronaCreateDTO(
         @NotNull(message = "A data e hora da partida são obrigatórias")
         LocalDateTime datahoraPartida,
 
+        @NotNull(message = "O valor não pode estar em branco")
+        float valorSugerido,
+
         @NotNull(message = "O número de vagas é obrigatório")
         Integer vagas,
 

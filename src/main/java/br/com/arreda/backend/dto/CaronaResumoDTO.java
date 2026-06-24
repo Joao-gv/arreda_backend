@@ -16,6 +16,7 @@ public class CaronaResumoDTO {
     private String origem;
     private String destino;
     private LocalDateTime dataHoraPartida;
+    private float valorSugerido;
     private StatusCarona statusCarona;
     private String nomeMotorista;
     private StatusParticipacao statusParticipacao; // Será preenchido apenas no papel de Passageiro
