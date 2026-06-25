@@ -54,7 +54,7 @@ public class VeiculoService {
     @Transactional(readOnly = true)
     public List<VeiculoResponseDTO> listarVeiculosDoUsuario(Long idUsuaruioAutenticado){
 
-        if(!perfilRepository.existsById(idUsuaruioAutenticado)){
+        if(perfilRepository.findByUsuarioId(idUsuaruioAutenticado).isEmpty()){
             throw new RegraDeNegocioException("O usuario nao possui perfil de motorista cadastrado.");
         }
 

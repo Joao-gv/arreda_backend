@@ -22,6 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Login", description = "Endpoints relacionados ao login")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
     @Autowired
