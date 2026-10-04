@@ -42,6 +42,10 @@ public class Usuario {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name ="email_verificado",nullable = false,
+      columnDefinition = "boolean not null default false")
+     private boolean emailVerificado = false;
+
     // Relacionamento 1:1 Bidirecional.
     //chave estrangeira (usuario_id) fica na tabela de PerfilMotorista, no atributo 'usuario'.
     @JsonIgnore //Impede que a carona de um loop na hora de adicionar o json
