@@ -73,3 +73,15 @@ Estamos utilizando o Swagger, portanto basta acessar a seguinte url:
 - **João Vieira** - *Responsável técnico*
 - **João Vitor** -*Responsável pela apresentação*
 - **Victor Fernandes** - *Responsável pela documentação* 
+
+## Configuração de e-mail para desenvolvimento
+
+O backend usa SMTP por meio do `JavaMailSender`. Para testar sem enviar mensagens a pessoas reais, configure uma caixa **Email Sandbox** no Mailtrap e copie os dados SMTP exibidos pela caixa.
+
+1. Copie `.env.example` para `.env` como referência local e preencha `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME` e `MAIL_PASSWORD` com os dados da caixa Mailtrap. Defina `MAIL_FROM` com o remetente exibido na mensagem. `MAIL_SMTP_AUTH` e `MAIL_SMTP_STARTTLS` são opcionais; por padrão, ambos estão habilitados.
+2. Disponibilize essas variáveis no ambiente em que a aplicação será executada. O Spring Boot lê variáveis de ambiente do processo; criar o arquivo `.env` não faz com que ele seja carregado automaticamente. No IntelliJ, configure-as em **Run/Debug Configurations → Environment variables**; no PowerShell, defina-as na sessão antes de iniciar a aplicação. Use os mesmos nomes e valores preenchidos no arquivo local.
+3. Inicie a aplicação e, quando um fluxo chamar `EmailService.enviar(destinatario, assunto, corpoHtml)`, confira a mensagem na caixa Mailtrap.
+
+As opções `MAIL_SMTP_AUTH` e `MAIL_SMTP_STARTTLS` controlam autenticação e STARTTLS. Os arquivos `.env` locais são ignorados pelo Git; compartilhe apenas os nomes das variáveis, nunca os valores das credenciais.
+
+Os templates HTML iniciais estão em `src/main/resources/templates/`. Eles usam os marcadores `{{nome}}`, `{{linkConfirmacao}}` e `{{linkRedefinicao}}`; os fluxos que os preencherão serão implementados nas tarefas seguintes.

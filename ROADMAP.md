@@ -326,17 +326,17 @@ As primeiras etapas construíram a base da aplicação: API Java com Spring Boot
 O envio de e-mails é necessário tanto para confirmar cadastros quanto para recuperar senhas. Um serviço compartilhado centraliza a configuração, os templates e o tratamento de falhas.
 
 **Passo a passo**
-- [ ] Adicionar a dependência `spring-boot-starter-mail` no `pom.xml`
-- [ ] Criar conta gratuita no [Mailtrap](https://mailtrap.io/) (caixa de entrada falsa para desenvolvimento — nada é enviado para pessoas reais)
-- [ ] Configurar `spring.mail.host`, `port`, `username`, `password` no `application.properties` lendo de variáveis de ambiente (`${MAIL_HOST}` etc.)
-- [ ] Criar `.env.example` no repositório com as chaves **sem os valores**, e garantir que o `.env` real está no `.gitignore`
-- [ ] Criar `EmailService` com o método `enviar(String destinatario, String assunto, String corpoHtml)`
-- [ ] Criar os templates HTML de e-mail em `resources/templates/` (um para confirmação, um para redefinição de senha)
-- [ ] Anotar o método de envio com `@Async` para que a requisição HTTP não fique esperando o e-mail sair (e habilitar `@EnableAsync`)
-- [ ] Documentar no `README.md` como configurar o Mailtrap na máquina de cada pessoa
+- [x] Adicionar a dependência `spring-boot-starter-mail` no `pom.xml`
+- [x] Criar conta gratuita no [Mailtrap](https://mailtrap.io/) (caixa de entrada falsa para desenvolvimento — nada é enviado para pessoas reais)
+- [x] Configurar `spring.mail.host`, `port`, `username`, `password` no `application.properties` lendo de variáveis de ambiente (`${MAIL_HOST}` etc.)
+- [x] Criar `.env.example` no repositório com as chaves **sem os valores**, e garantir que o `.env` real está no `.gitignore`
+- [x] Criar `EmailService` com o método `enviar(String destinatario, String assunto, String corpoHtml)`
+- [x] Criar os templates HTML de e-mail em `resources/templates/` (um para confirmação, um para redefinição de senha)
+- [x] Anotar o método de envio com `@Async` para que a requisição HTTP não fique esperando o e-mail sair (e habilitar `@EnableAsync`)
+- [x] Documentar no `README.md` como configurar o Mailtrap na máquina de cada pessoa
 
 **Critérios de aceite**
-- [ ] Um teste manual dispara um e-mail e ele aparece na caixa do Mailtrap
+- [x] Um teste manual dispara um e-mail e ele aparece na caixa do Mailtrap
 - [ ] O histórico do Git não contém credenciais de e-mail
 - [ ] Se o servidor de e-mail estiver fora do ar, a aplicação registra o erro no log e **não** derruba a requisição do usuário
 
