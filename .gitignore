@@ -4,6 +4,11 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Variáveis locais (o exemplo sem credenciais permanece versionado)
+.env
+.env.*
+!.env.example
+
 ### STS ###
 .apt_generated
 .classpath

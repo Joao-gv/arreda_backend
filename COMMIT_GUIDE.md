@@ -58,7 +58,7 @@ Para nosso contexto de aplicativo de caronas, tente usar estes escopos:
 
 ## 🔄 Pull Requests (PRs)
 
-### Processo Recomendado:
+### Processo Obrigatório:
 
 1. **Antes de iniciar o código:**
     - Garanta que a sua branch base (`main`) seja a versão mais atualizada na sua máquina antes de "puxá-la":
@@ -66,13 +66,16 @@ Para nosso contexto de aplicativo de caronas, tente usar estes escopos:
    git checkout main
    git pull
    ```
-    - Crie a sua branch derivada em seguida: `git checkout -b feature/sua-feature`
+    - Crie uma branch nova para a tarefa antes de editar arquivos: `git checkout -b feat/sua-feature`.
+    - É proibido fazer commits diretamente na `main`. Toda alteração deve ser commitada na branch da tarefa.
 
 2. **Durante o desenvolvimento:**
-    - Faça commits atômicos (frequentes e pequenos) limitados a pequenos blocos coerentes de alteração lógica.
+    - Faça commits atômicos (frequentes e pequenos) na branch da tarefa, limitados a blocos coerentes de alteração lógica.
     - Realize testes da sua funcionalidade e do projeto como um todo antes do processo final de push.
 
-3. **Na abertura do PR:**
+3. **Ao concluir a tarefa:**
+    - Envie a branch para o repositório remoto: `git push -u origin feat/sua-feature`.
+    - Solicite a integração por meio de um Pull Request da branch da tarefa para a `main`. Não integre alterações diretamente na `main`.
     - O Título deve empregar os mesmos prefixos categorizados das marcações de commit descritas acima.
     - Siga este molde simples na descrição gráfica:
 
