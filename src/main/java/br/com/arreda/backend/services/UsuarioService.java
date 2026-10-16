@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import br.com.arreda.backend.dto.UsuarioUpdateDTO;
+import br.com.arreda.backend.exception.RecursoNaoEncontradoException;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +40,19 @@ public class UsuarioService {
         usuario.setTelefone(dto.telefone());
 
         // 5. Salva e retorna o usuário
+        return repository.save(usuario);
+    }
+
+    @Transactional
+    public Usuario atualizarPerfil(Long id, UsuarioUpdateDTO dto) {
+        // Recarrega do banco: o usuário que vem do filtro JWT está "solto" (detached)
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado."));
+
+        // Só nome e telefone são editáveis aqui. E-mail, senha e id nunca são tocados.
+        usuario.setNome(dto.nome().trim());
+        usuario.setTelefone(dto.telefone());
+
         return repository.save(usuario);
     }
 }

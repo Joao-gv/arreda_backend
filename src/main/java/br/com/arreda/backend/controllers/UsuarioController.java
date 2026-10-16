@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import br.com.arreda.backend.dto.UsuarioUpdateDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,20 +49,29 @@ public class UsuarioController {
    }
 
     @GetMapping("/me")
-    public ResponseEntity<UsuarioMeDTO> obterUsuarioLogado() {
-        Usuario usuarioLogado =
-                (Usuario) SecurityContextHolder.getContext()
-                        .getAuthentication()
-                        .getPrincipal();
+    public ResponseEntity<UsuarioMeDTO> obterUsuarioLogado(
+            @AuthenticationPrincipal Usuario usuarioLogado) {
+        return ResponseEntity.ok(montarUsuarioMeDTO(usuarioLogado));
+    }
 
-        boolean ehMotorista = perfilMotoristaRepository.findByUsuarioId(usuarioLogado.getId()).isPresent();
+    @PutMapping("/me")
+    public ResponseEntity<UsuarioMeDTO> atualizarUsuarioLogado(
+            @AuthenticationPrincipal Usuario usuarioLogado,
+            @Valid @RequestBody UsuarioUpdateDTO dto) {
+        // O id vem do token (principal), nunca do corpo da requisição
+        Usuario atualizado = usuarioService.atualizarPerfil(usuarioLogado.getId(), dto);
+        return ResponseEntity.ok(montarUsuarioMeDTO(atualizado));
+    }
 
-        return ResponseEntity.ok(new UsuarioMeDTO(
-                usuarioLogado.getId(),
-                usuarioLogado.getNome(),
-                usuarioLogado.getEmail(),
+    private UsuarioMeDTO montarUsuarioMeDTO(Usuario usuario) {
+        boolean ehMotorista = perfilMotoristaRepository.findByUsuarioId(usuario.getId()).isPresent();
+        return new UsuarioMeDTO(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getEmail(),
+                usuario.getTelefone(),
                 ehMotorista
-        ));
+        );
     }
 
     @GetMapping("/me/caronas")
