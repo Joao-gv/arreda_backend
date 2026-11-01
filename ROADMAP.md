@@ -389,18 +389,18 @@ O token enviado por e-mail comprova o acesso do usuário ao endereço cadastrado
 Este fluxo conecta o cadastro à confirmação do endereço e condiciona a autenticação à verificação do e-mail.
 
 **Passo a passo**
-- [ ] No cadastro (`POST /api/auth/registrar`), gerar o token e disparar o e-mail com o link `${FRONTEND_URL}/confirmar-email?token=...`
-- [ ] Criar `POST /api/auth/confirmar-email` recebendo `{ "token": "..." }`, validando e marcando `emailVerificado = true`
-- [ ] Criar `POST /api/auth/reenviar-confirmacao` recebendo o e-mail (com limite de 1 reenvio a cada 2 minutos por usuário)
-- [ ] Bloquear o login de quem tem `emailVerificado = false`, devolvendo **403** com um código de erro específico (ex.: `EMAIL_NAO_VERIFICADO`) para o frontend saber que tela mostrar
-- [ ] **Cuidado com vazamento de dados:** `reenviar-confirmacao` deve responder a mesma mensagem tanto para e-mail existente quanto inexistente, senão vira uma forma de descobrir quem tem conta
-- [ ] Atualizar a documentação da API (Swagger/OpenAPI ou o `README`)
+- [x] No cadastro (`POST /api/auth/registrar`), gerar o token e disparar o e-mail com o link `${FRONTEND_URL}/confirmar-email?token=...`
+- [x] Criar `POST /api/auth/confirmar-email` recebendo `{ "token": "..." }`, validando e marcando `emailVerificado = true`
+- [x] Criar `POST /api/auth/reenviar-confirmacao` recebendo o e-mail (com limite de 1 reenvio a cada 2 minutos por usuário)
+- [x] Bloquear o login de quem tem `emailVerificado = false`, devolvendo **403** com um código de erro específico (ex.: `EMAIL_NAO_VERIFICADO`) para o frontend saber que tela mostrar
+- [x] **Cuidado com vazamento de dados:** `reenviar-confirmacao` deve responder a mesma mensagem tanto para e-mail existente quanto inexistente, senão vira uma forma de descobrir quem tem conta
+- [x] Atualizar a documentação da API (Swagger/OpenAPI ou o `README`)
 
 **Critérios de aceite**
-- [ ] Cadastro novo → e-mail chega no Mailtrap com link válido
-- [ ] Clicar/chamar o endpoint com o token → conta verificada, login liberado
-- [ ] Login antes de confirmar → 403 com o código `EMAIL_NAO_VERIFICADO`
-- [ ] Token adulterado → 400 com mensagem amigável, sem stack trace vazando
+- [x] Cadastro novo → e-mail chega no Mailtrap com link válido
+- [x] Clicar/chamar o endpoint com o token → conta verificada, login liberado
+- [x] Login antes de confirmar → 403 com o código `EMAIL_NAO_VERIFICADO`
+- [x] Token adulterado → 400 com mensagem amigável, sem stack trace vazando
 
 **Referências**
 - [Spring Security — Reference](https://docs.spring.io/spring-security/reference/index.html)
