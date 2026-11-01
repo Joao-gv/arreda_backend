@@ -442,20 +442,20 @@ As telas orientam o usuário após o cadastro e oferecem uma forma de reenviar a
 O fluxo permite recuperar o acesso à conta sem suporte manual, com validação de token e substituição segura da senha.
 
 **Passo a passo**
-- [ ] `POST /api/auth/esqueci-senha` recebendo `{ "email": "..." }` — gera token do tipo `RESET_SENHA` (30 min) e envia o e-mail
-- [ ] **Sempre responder 200 com a mesma mensagem**, exista ou não a conta (evita descobrir quem está cadastrado)
-- [ ] `POST /api/auth/redefinir-senha` recebendo `{ "token": "...", "novaSenha": "..." }`
-- [ ] Validar a força da nova senha (mínimo 8 caracteres; defina a regra com o time e documente)
-- [ ] Gravar a senha com **BCrypt**, o mesmo encoder já usado no projeto
-- [ ] Ao redefinir: invalidar o token e **revogar todos os `RefreshToken` do usuário** (quem redefiniu senha deve deslogar de todos os dispositivos)
-- [ ] Limitar tentativas: no máximo 3 solicitações por e-mail a cada 15 minutos
-- [ ] Testes: token válido, expirado, reutilizado, senha fraca
+- [x] `POST /api/auth/esqueci-senha` recebendo `{ "email": "..." }` — gera token do tipo `RESET_SENHA` (30 min) e envia o e-mail
+- [x] **Sempre responder 200 com a mesma mensagem**, exista ou não a conta (evita descobrir quem está cadastrado)
+- [x] `POST /api/auth/redefinir-senha` recebendo `{ "token": "...", "novaSenha": "..." }`
+- [x] Validar a força da nova senha (mínimo 8 caracteres; defina a regra com o time e documente)
+- [x] Gravar a senha com **BCrypt**, o mesmo encoder já usado no projeto
+- [x] Ao redefinir: invalidar o token e **revogar todos os `RefreshToken` do usuário** (quem redefiniu senha deve deslogar de todos os dispositivos)
+- [x] Limitar tentativas: no máximo 3 solicitações por e-mail a cada 15 minutos
+- [x] Testes: token válido, expirado, reutilizado, senha fraca
 
 **Critérios de aceite**
-- [ ] Solicitar com e-mail inexistente devolve a mesma resposta que com e-mail existente
-- [ ] Após redefinir, a senha antiga não funciona mais e a nova funciona
-- [ ] Sessões antigas (refresh tokens) deixam de funcionar após a redefinição
-- [ ] Token de reset expira em 30 minutos
+- [x] Solicitar com e-mail inexistente devolve a mesma resposta que com e-mail existente
+- [x] Após redefinir, a senha antiga não funciona mais e a nova funciona
+- [x] Sessões antigas (refresh tokens) deixam de funcionar após a redefinição
+- [x] Token de reset expira em 30 minutos
 
 **Referências**
 - [OWASP — Forgot Password Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html)
