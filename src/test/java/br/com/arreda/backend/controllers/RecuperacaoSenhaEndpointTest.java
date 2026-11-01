@@ -83,6 +83,7 @@ class RecuperacaoSenhaEndpointTest {
         usuario.setEmail(email);
         usuario.setSenhaHash(encoder.encode(SENHA_ANTIGA));
         usuario.setTelefone("31900000009");
+        usuario.setEmailVerificado(true); // login agora exige e-mail confirmado (S7-03)
         usuarios.saveAndFlush(usuario);
         usuarioId = usuario.getId();
     }
@@ -182,6 +183,31 @@ class RecuperacaoSenhaEndpointTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"token\":\"" + token + "\",\"novaSenha\":\"OutraSenha2\"}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void redefinirSenha_usarUmLinkInvalidaOsLinksAnterioresPendentes() throws Exception {
+        assertEquals(200, postEsqueci(email).getResponse().getStatus());
+        String primeiro = tokenResetEmAberto();
+        assertEquals(200, postEsqueci(email).getResponse().getStatus());
+        String segundo = tokens.findAll().stream()
+                .filter(t -> t.getTipo() == TipoToken.RESET_SENHA && t.getUsadoEm() == null)
+                .filter(t -> t.getUsuario().getId().equals(usuarioId))
+                .map(TokenVerificacao::getToken)
+                .filter(t -> !t.equals(primeiro))
+                .findFirst().orElseThrow();
+
+        mockMvc.perform(post("/api/auth/redefinir-senha")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"token\":\"" + segundo + "\",\"novaSenha\":\"" + SENHA_NOVA + "\"}"))
+                .andExpect(status().isOk());
+
+        // o link do primeiro pedido não pode mais trocar a senha
+        mockMvc.perform(post("/api/auth/redefinir-senha")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"token\":\"" + primeiro + "\",\"novaSenha\":\"OutraSenha2\"}"))
+                .andExpect(status().isBadRequest());
+        assertEquals(200, statusLogin(email, SENHA_NOVA));
     }
 
     @Test
