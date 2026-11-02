@@ -62,6 +62,8 @@ public class SecurityConfig {
                                 "/api/auth/refresh",
                                 "/api/auth/esqueci-senha",
                                 "/api/auth/redefinir-senha",
+                                "/api/auth/confirmar-email",
+                                "/api/auth/reenviar-confirmacao",
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",

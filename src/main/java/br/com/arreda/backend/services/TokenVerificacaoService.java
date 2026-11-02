@@ -40,7 +40,10 @@ public class TokenVerificacaoService {
         if (LocalDateTime.now().isAfter(t.getExpiraEm())){
             throw new RegraDeNegocioException("Este link expirou. Solicite um novo.");
         }
-        t.setUsadoEm(LocalDateTime.now());
+        LocalDateTime agora = LocalDateTime.now();
+        t.setUsadoEm(agora);
+        // Usar um link invalida os demais links pendentes do mesmo tipo (ex.: pedidos de reset anteriores).
+        repository.invalidarPendentes(t.getUsuario(), tipo, agora);
         return t.getUsuario();
     }
     private Duration validadePara(TipoToken tipo){

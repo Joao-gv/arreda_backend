@@ -84,10 +84,33 @@ O backend usa SMTP por meio do `JavaMailSender`. Para testar sem enviar mensagen
 
 As opções `MAIL_SMTP_AUTH` e `MAIL_SMTP_STARTTLS` controlam autenticação e STARTTLS. Os arquivos `.env` locais são ignorados pelo Git; compartilhe apenas os nomes das variáveis, nunca os valores das credenciais.
 
-Os templates HTML iniciais estão em `src/main/resources/templates/`. Eles usam os marcadores `{{nome}}`, `{{linkConfirmacao}}` e `{{linkRedefinicao}}`; os fluxos que os preencherão serão implementados nas tarefas seguintes.
+Os templates HTML iniciais estão em `src/main/resources/templates/`. Eles usam os marcadores `{{nome}}`, `{{linkConfirmacao}}` e `{{linkRedefinicao}}`, preenchidos por `TemplateEmail.renderizar`, que escapa os valores para HTML (um nome com `<b>` aparece como texto, sem virar marcação).
 
 ## Redefinição de senha
 
 `POST /api/auth/esqueci-senha` recebe `{ "email": "..." }` e sempre responde `200` com a mesma mensagem, exista ou não a conta. São permitidas no máximo **3 solicitações por e-mail a cada 15 minutos** (`429` na 4ª). O e-mail enviado contém um link `redefinir-senha?token=...`; a base do link vem da variável `FRONTEND_URL` (padrão `http://localhost:5173`).
 
-`POST /api/auth/redefinir-senha` recebe `{ "token": "...", "novaSenha": "..." }`. O token `RESET_SENHA` vale **30 minutos** e só pode ser usado uma vez. A regra de senha combinada com o time é: **mínimo 8, máximo 72 caracteres, com pelo menos uma letra e um número**. Ao redefinir, a senha é gravada com BCrypt e **todos os refresh tokens do usuário são revogados** (desloga de todos os dispositivos).
+`POST /api/auth/redefinir-senha` recebe `{ "token": "...", "novaSenha": "..." }`. O token `RESET_SENHA` vale **30 minutos** e só pode ser usado uma vez. A regra de senha combinada com o time é: **mínimo 8, máximo 72 caracteres, com pelo menos uma letra e um número**. Ao redefinir, a senha é gravada com BCrypt e **todos os refresh tokens do usuário são revogados** (desloga de todos os dispositivos). Usar um link de redefinição invalida os demais links de redefinição ainda pendentes do mesmo usuário.
+
+## Confirmação de e-mail
+
+Toda conta nasce com `emailVerificado = false`, e o login só é liberado depois da confirmação.
+
+- **Cadastro** (`POST /api/usuarios/register`): além de criar a conta, gera um token `CONFIRMACAO_EMAIL` (válido por **24 horas**) e envia o e-mail "Confirme seu e-mail | Arreda" com o link `${FRONTEND_URL}/confirmar-email?token=...`. Uma falha no envio não impede o cadastro; o usuário pode pedir o reenvio.
+- **`POST /api/auth/confirmar-email`** recebe `{ "token": "..." }` e marca a conta como verificada (`200`). Token inexistente, adulterado, expirado ou já usado → `400` com mensagem amigável (`{ "erro": "...", "status": 400 }`), sem stack trace.
+- **`POST /api/auth/reenviar-confirmacao`** recebe `{ "email": "..." }` e **sempre responde `200` com a mesma mensagem**, exista ou não a conta (ou já esteja verificada). Limite de **1 reenvio por e-mail a cada 2 minutos** (`429` quando excedido; o limite vale para qualquer e-mail, para não revelar cadastros). Usar um link invalida os outros links de confirmação pendentes.
+- **Login** (`POST /api/auth/login`) com senha correta e e-mail não confirmado → `403`:
+
+  ```json
+  { "erro": "Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada e o spam.", "codigo": "EMAIL_NAO_VERIFICADO", "status": 403 }
+  ```
+
+  O frontend deve usar o campo `codigo` para mostrar a tela de "confirme seu e-mail" com o atalho de reenvio. Senha errada continua retornando `401`.
+
+Os limites de solicitação (redefinição e reenvio) ficam em memória (`LimiteSolicitacoes`): zeram quando a aplicação reinicia e valem para uma única instância.
+
+> **Contas criadas antes desta mudança** estão com `email_verificado = false` e passam a receber `403` no login. Elas podem usar o reenvio de confirmação. Em ambiente de desenvolvimento, para liberar as contas existentes de uma vez:
+>
+> ```sql
+> UPDATE tb_usuarios SET email_verificado = true WHERE email_verificado = false;
+> ```
