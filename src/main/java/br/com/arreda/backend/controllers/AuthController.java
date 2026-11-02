@@ -3,11 +3,14 @@ package br.com.arreda.backend.controllers;
 import br.com.arreda.backend.dto.LoginDTO;
 import br.com.arreda.backend.dto.RefreshTokenRequestDTO;
 import br.com.arreda.backend.dto.TokenResponseDTO;
+import br.com.arreda.backend.dto.EsqueciSenhaDTO;
+import br.com.arreda.backend.dto.RedefinirSenhaDTO;
 import br.com.arreda.backend.models.RefreshToken;
 import br.com.arreda.backend.models.Usuario;
 import br.com.arreda.backend.repositories.UsuarioRepository;
 import br.com.arreda.backend.security.RefreshTokenService;
 import br.com.arreda.backend.security.TokenService;
+import br.com.arreda.backend.services.RecuperacaoSenhaService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,9 @@ public class AuthController {
 
     @Autowired
     private RefreshTokenService refreshTokenService;
+
+    @Autowired
+    private RecuperacaoSenhaService recuperacaoSenhaService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginDTO loginDTO) {
@@ -74,5 +80,23 @@ public class AuthController {
                     return ResponseEntity.ok(new TokenResponseDTO(novoAccessToken, novoRefreshToken.getToken()));
                 })
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Refresh Token não encontrado ou inválido!"));
+    }
+
+    @PostMapping("/esqueci-senha")
+    public ResponseEntity<?> esqueciSenha(@RequestBody @Valid EsqueciSenhaDTO dto) {
+        if (!recuperacaoSenhaService.podeSolicitar(dto.email())) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(Map.of("mensagem", "Muitas tentativas. Tente novamente mais tarde."));
+        }
+        recuperacaoSenhaService.solicitar(dto.email());
+        // Resposta idêntica exista ou não a conta, para não revelar quem está cadastrado.
+        return ResponseEntity.ok(Map.of("mensagem",
+                "Se o e-mail estiver cadastrado, você receberá um link de redefinição."));
+    }
+
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<?> redefinirSenha(@RequestBody @Valid RedefinirSenhaDTO dto) {
+        recuperacaoSenhaService.redefinir(dto);
+        return ResponseEntity.ok(Map.of("mensagem", "Senha redefinida com sucesso. Faça login novamente."));
     }
 }

@@ -85,3 +85,9 @@ O backend usa SMTP por meio do `JavaMailSender`. Para testar sem enviar mensagen
 As opções `MAIL_SMTP_AUTH` e `MAIL_SMTP_STARTTLS` controlam autenticação e STARTTLS. Os arquivos `.env` locais são ignorados pelo Git; compartilhe apenas os nomes das variáveis, nunca os valores das credenciais.
 
 Os templates HTML iniciais estão em `src/main/resources/templates/`. Eles usam os marcadores `{{nome}}`, `{{linkConfirmacao}}` e `{{linkRedefinicao}}`; os fluxos que os preencherão serão implementados nas tarefas seguintes.
+
+## Redefinição de senha
+
+`POST /api/auth/esqueci-senha` recebe `{ "email": "..." }` e sempre responde `200` com a mesma mensagem, exista ou não a conta. São permitidas no máximo **3 solicitações por e-mail a cada 15 minutos** (`429` na 4ª). O e-mail enviado contém um link `redefinir-senha?token=...`; a base do link vem da variável `FRONTEND_URL` (padrão `http://localhost:5173`).
+
+`POST /api/auth/redefinir-senha` recebe `{ "token": "...", "novaSenha": "..." }`. O token `RESET_SENHA` vale **30 minutos** e só pode ser usado uma vez. A regra de senha combinada com o time é: **mínimo 8, máximo 72 caracteres, com pelo menos uma letra e um número**. Ao redefinir, a senha é gravada com BCrypt e **todos os refresh tokens do usuário são revogados** (desloga de todos os dispositivos).

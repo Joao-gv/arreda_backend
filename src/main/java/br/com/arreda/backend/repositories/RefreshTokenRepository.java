@@ -11,4 +11,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     Optional<RefreshToken> findByToken(String token);
 
     Optional<RefreshToken> findByUsuarioId(Long usuarioId);
+
+    /** Revoga (apaga) todas as sessões do usuário — usado no fluxo de redefinição de senha. */
+    void deleteByUsuarioId(Long usuarioId);
 }
