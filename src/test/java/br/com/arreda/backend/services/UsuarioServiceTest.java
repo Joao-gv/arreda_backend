@@ -1,6 +1,8 @@
 package br.com.arreda.backend.services;
 
+import br.com.arreda.backend.dto.UsuarioCreateDTO;
 import br.com.arreda.backend.dto.UsuarioUpdateDTO;
+import br.com.arreda.backend.exception.RegraDeNegocioException;
 import br.com.arreda.backend.exception.RecursoNaoEncontradoException;
 import br.com.arreda.backend.models.Usuario;
 import br.com.arreda.backend.repositories.UsuarioRepository;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -29,6 +32,9 @@ class UsuarioServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private ConfirmacaoEmailService confirmacaoEmailService;
+
     @InjectMocks
     private UsuarioService service;
 
@@ -40,6 +46,30 @@ class UsuarioServiceTest {
         u.setSenhaHash("hash-original");
         u.setTelefone("31900000000");
         return u;
+    }
+
+    @Test
+    void salvarUsuario_criaContaNaoVerificadaEEnviaConfirmacao() {
+        when(repository.existsByEmail("novo@email.com")).thenReturn(false);
+        when(passwordEncoder.encode("senha123")).thenReturn("hash");
+        when(repository.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Usuario salvo = service.salvarUsuario(
+                new UsuarioCreateDTO("Novo", " Novo@Email.com ", "senha123", "31988887777"));
+
+        assertEquals("novo@email.com", salvo.getEmail());
+        assertFalse(salvo.isEmailVerificado());
+        verify(confirmacaoEmailService).enviarConfirmacao(salvo);
+    }
+
+    @Test
+    void salvarUsuario_emailDuplicado_naoEnviaConfirmacao() {
+        when(repository.existsByEmail("dup@email.com")).thenReturn(true);
+
+        assertThrows(RegraDeNegocioException.class, () -> service.salvarUsuario(
+                new UsuarioCreateDTO("Dup", "dup@email.com", "senha123", "31988887777")));
+
+        verify(confirmacaoEmailService, never()).enviarConfirmacao(any());
     }
 
     @Test

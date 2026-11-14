@@ -16,6 +16,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,6 +50,18 @@ class TokenVerificacaoServiceTest {
 
         assertNotNull(usuario);
         assertNotNull(t.getUsadoEm(), "O token deveria ter sido marcado como usado");
+        verify(repository).invalidarPendentes(eq(t.getUsuario()), eq(TipoToken.CONFIRMACAO_EMAIL), any());
+    }
+
+    @Test
+    void tokenJaUsado_naoInvalidaOutrosTokens() {
+        TokenVerificacao t = criarToken(LocalDateTime.now().plusHours(1), LocalDateTime.now().minusMinutes(1));
+        when(repository.findByTokenAndTipo("abc", TipoToken.CONFIRMACAO_EMAIL))
+                .thenReturn(Optional.of(t));
+
+        assertThrows(RegraDeNegocioException.class,
+                () -> service.validarEConsumir("abc", TipoToken.CONFIRMACAO_EMAIL));
+        verify(repository, never()).invalidarPendentes(any(), any(), any());
     }
 
     @Test
