@@ -17,6 +17,7 @@ public class UsuarioService {
 
     private final UsuarioRepository repository;
     private final PasswordEncoder passwordEncoder; // Escrito corretamente e injetado pelo Lombok
+    private final ConfirmacaoEmailService confirmacaoEmailService;
 
     @Transactional
     public Usuario salvarUsuario(UsuarioCreateDTO dto) {
@@ -39,8 +40,12 @@ public class UsuarioService {
         usuario.setSenhaHash(senhaCriptografada);
         usuario.setTelefone(dto.telefone());
 
-        // 5. Salva e retorna o usuário
-        return repository.save(usuario);
+        // 5. Salva o usuário (nasce com emailVerificado = false)
+        Usuario salvo = repository.save(usuario);
+
+        // 6. Envia o link de confirmação de e-mail (assíncrono; falhas não derrubam o cadastro)
+        confirmacaoEmailService.enviarConfirmacao(salvo);
+        return salvo;
     }
 
     @Transactional
