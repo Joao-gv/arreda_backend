@@ -200,6 +200,7 @@ public class CaronaService {
                         .statusCarona(carona.getStatus())
                         .nomeMotorista(carona.getPerfilMotorista().getUsuario().getNome()) // Ele mesmo
                         .statusParticipacao(null) // Motorista não tem status de participação
+                        .idMotorista(carona.getPerfilMotorista().getUsuario().getId())
                         .build()
         ).collect(Collectors.toList());
 
@@ -218,6 +219,7 @@ public class CaronaService {
                     .statusCarona(carona.getStatus())
                     .nomeMotorista(carona.getPerfilMotorista().getUsuario().getNome()) // Nome do dono do carro
                     .statusParticipacao(participacao.getStatus()) // PENDENTE, CONFIRMADO, etc.
+                    .idMotorista(carona.getPerfilMotorista().getUsuario().getId())
                     .build();
         }).collect(Collectors.toList());
 
@@ -246,7 +248,8 @@ public class CaronaService {
                     carona.getVagasDisponiveis(),
                     primeiroNome,
                     carona.getVeiculo().getModelo(),
-                    carona.getVeiculo().getCor()
+                    carona.getVeiculo().getCor(),
+                    carona.getPerfilMotorista().getUsuario().getId()
             );
         });
     }
@@ -267,7 +270,8 @@ public class CaronaService {
                 .map(p -> new br.com.arreda.backend.dto.ParticipacaoResponseDTO(
                         p.getId(),
                         p.getUsuario().getNome(),
-                        p.getStatus()
+                        p.getStatus(),
+                        p.getUsuario().getId()
                 )).collect(Collectors.toList());
     }
 }

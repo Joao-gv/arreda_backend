@@ -5,5 +5,6 @@ public record UsuarioMeDTO(
     String nome,
     String email,
     String telefone,
-    boolean ehMotorista
+    boolean ehMotorista,
+    String fotoUrl
 ) {}

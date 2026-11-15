@@ -5,11 +5,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErroPadraoDTO> handleUploadMaiorQueOLimite(MaxUploadSizeExceededException ex) {
+        ErroPadraoDTO erro = new ErroPadraoDTO("A imagem deve ter no máximo 2 MB.", HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.badRequest().body(erro);
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ErroPadraoDTO> handleParteMultipartAusente(MissingServletRequestPartException ex) {
+        ErroPadraoDTO erro = new ErroPadraoDTO("Envie a imagem no campo 'foto'.", HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.badRequest().body(erro);
+    }
 
     @ExceptionHandler(RecursoNaoEncontradoException.class)
     public ResponseEntity<ErroPadraoDTO> handleRecursoNaoEncontrado(RecursoNaoEncontradoException ex) {

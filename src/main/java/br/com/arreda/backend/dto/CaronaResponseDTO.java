@@ -11,5 +11,6 @@ public record CaronaResponseDTO(
         int vagasDisponiveis,
         String motoristaNome,
         String veiculoModelo,
-        String veiculoCor
+        String veiculoCor,
+        Long motoristaId
 ) {}

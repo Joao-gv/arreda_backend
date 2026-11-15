@@ -1,6 +1,6 @@
     # 🚗 Arreda - Sistema de Caronas 
 
-> **Arreda** é uma plataforma moderna para gestão de caronas, desenvolvida por alunos do IFMG pensando na questão de acessibilidade da própria instituição, a plataforma é focada em segurança e praticidade. Desenvolvida com Spring Boot 3 e Java 21.
+> **Arreda** é uma plataforma moderna para gestão de caronas, desenvolvida por alunos do IFMG pensando na questão de acessibilidade da própria instituição, a plataforma é focada em segurança e praticidade. Desenvolvida com Spring Boot 4 e Java 21.
 
 ---
 
@@ -8,7 +8,7 @@
 O Arreda conecta motoristas e passageiros de forma eficiente. O foco inicial é o ambiente universitário/corporativo, onde a confiança é a base para o compartilhamento de viagens.
 
 ### 🛠️ Tecnologias Utilizadas
-- **Backend:** Java 21, Spring Boot 3, Spring Data JPA
+- **Backend:** Java 21, Spring Boot 4, Spring Data JPA
 - **Banco de Dados:** PostgreSQL 15 (via Docker)
 - **Documentação:** Swagger (OpenAPI)
 - **Gerenciador de Dependências:** Maven
@@ -44,27 +44,53 @@ O Arreda conecta motoristas e passageiros de forma eficiente. O foco inicial é 
 ### 🚀 Como Executar o Projeto
 
 ### Pré-requisitos
-- **JDK 21** instalado.
-- **Docker Desktop** rodando.
-- IDE (Recomendamos **IntelliJ IDEA**).
+- **Docker Desktop** rodando para executar a API e o PostgreSQL via Compose.
+- **JDK 21** e Maven Wrapper (`mvnw.cmd` no Windows ou `./mvnw` no Linux/macOS) para executar a API pela IDE.
 
-### Passos para rodar
-1.  **Clone o repositório:**
-    ```bash
-    git clone [https://github.com/SEU_USUARIO/arreda-backend.git](https://github.com/SEU_USUARIO/arreda-backend.git)
-    ```
-2.  **Suba o banco de dados:**
-    ```bash
-    docker-compose up -d
-    ```
-3.  **Rode a aplicação:**
-    Abra o projeto no IntelliJ e execute a classe `ArredaApplication.java`.
+### Executar API e PostgreSQL com Docker
+1. Se for usar SMTP local, copie `.env.example` para `.env` e preencha as configurações necessárias. Não versione o `.env`.
+2. Na raiz do projeto, construa e inicie os serviços:
+   ```bash
+   docker compose up --build -d
+   ```
+3. Acompanhe a inicialização da API:
+   ```bash
+   docker compose logs -f api
+   ```
+4. A API ficará disponível em `http://localhost:8080` e o PostgreSQL em `localhost:5433`.
+
+O Compose aguarda o PostgreSQL ficar saudável antes de iniciar a API. As fotos são gravadas no volume nomeado `arreda_uploads`, que continua disponível após reiniciar ou recriar os containers. Não use `docker compose down -v` se quiser preservar os dados dos volumes.
+
+Para parar os serviços sem remover volumes:
+```bash
+docker compose down
+```
+
+### Executar a API pela IDE
+1. Inicie apenas o PostgreSQL pelo Compose:
+   ```bash
+   docker compose up -d db
+   ```
+2. Na configuração de execução da IDE, use a raiz do projeto como **Working directory** e execute `br.com.arreda.backend.BackendApplication`.
+3. O backend usará o banco em `localhost:5433` e salvará as fotos em `./uploads`. O `.env` da raiz é importado automaticamente para as configurações locais de e-mail.
+
+O volume nomeado `arreda_uploads` só é montado na API quando ela roda pelo Compose. Na execução pela IDE, `./uploads` é uma pasta local do projeto; mantenha-a ao reiniciar a aplicação.
 ---
 
 ### Para testar as rotas da aplicação
 Estamos utilizando o Swagger, portanto basta acessar a seguinte url:
 
     http://localhost:8080/swagger-ui.html
+
+### Fotos de perfil
+
+- `POST /api/usuarios/me/foto` recebe multipart/form-data com a parte `foto`. Requer autenticação e altera apenas a foto do usuário autenticado.
+- `GET /api/usuarios/{id}/foto` serve a foto publicamente para exibição nos perfis e cards.
+- `DELETE /api/usuarios/me/foto` remove a foto do usuário autenticado.
+
+São aceitos JPEG e PNG de até 2 MB. O backend valida o conteúdo, converte para JPEG com no máximo 512×512 e persiste o arquivo fora do banco. O PostgreSQL guarda somente uma chave aleatória. No Compose, os arquivos ficam no volume `arreda_uploads`; no modo IDE, ficam em `./uploads`.
+
+As respostas de caronas incluem o identificador do motorista, e a lista de passageiros inclui o identificador de cada passageiro. O frontend pode usar esses identificadores para montar a rota pública `GET /api/usuarios/{id}/foto`; uma resposta 404 significa que o usuário ainda não cadastrou foto.
 
 ---
 

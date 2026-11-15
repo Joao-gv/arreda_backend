@@ -46,6 +46,9 @@ public class Usuario {
       columnDefinition = "boolean not null default false")
      private boolean emailVerificado = false;
 
+    @Column(name = "foto_key", length = 255)
+    private String fotoKey;
+
     // Relacionamento 1:1 Bidirecional.
     //chave estrangeira (usuario_id) fica na tabela de PerfilMotorista, no atributo 'usuario'.
     @JsonIgnore //Impede que a carona de um loop na hora de adicionar o json

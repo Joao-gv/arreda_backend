@@ -1,6 +1,7 @@
 package br.com.arreda.backend.controllers;
 
 import br.com.arreda.backend.dto.HistoricoCaronaDTO;
+import br.com.arreda.backend.dto.FotoUploadDTO;
 import br.com.arreda.backend.dto.UsuarioCreateDTO;
 import br.com.arreda.backend.dto.UsuarioMeDTO;
 import br.com.arreda.backend.dto.VeiculoResponseDTO;
@@ -9,6 +10,7 @@ import br.com.arreda.backend.models.Usuario;
 import br.com.arreda.backend.services.CaronaService;
 import br.com.arreda.backend.services.UsuarioService;
 import br.com.arreda.backend.services.VeiculoService;
+import br.com.arreda.backend.services.FotoPerfilService;
 import br.com.arreda.backend.repositories.PerfilMotoristaRepository;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -16,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
+import org.springframework.http.CacheControl;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +27,9 @@ import br.com.arreda.backend.dto.UsuarioUpdateDTO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.Duration;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("api/usuarios")
@@ -34,6 +41,7 @@ public class UsuarioController {
    private final CaronaService caronaService;
    private final VeiculoService veiculoService;
    private final PerfilMotoristaRepository perfilMotoristaRepository;
+   private final FotoPerfilService fotoPerfilService;
 
    @PostMapping("register")
     public ResponseEntity<?> registrarUsuario(@Valid @RequestBody UsuarioCreateDTO dto){
@@ -63,6 +71,29 @@ public class UsuarioController {
         return ResponseEntity.ok(montarUsuarioMeDTO(atualizado));
     }
 
+    @PostMapping(value = "/me/foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<FotoUploadDTO> enviarFotoPerfil(
+            @AuthenticationPrincipal Usuario usuarioLogado,
+            @RequestParam("foto") MultipartFile foto) {
+        String fotoKey = fotoPerfilService.atualizarFoto(usuarioLogado.getId(), foto);
+        return ResponseEntity.ok(new FotoUploadDTO(urlFoto(usuarioLogado.getId(), fotoKey)));
+    }
+
+    @DeleteMapping("/me/foto")
+    public ResponseEntity<Void> removerFotoPerfil(@AuthenticationPrincipal Usuario usuarioLogado) {
+        fotoPerfilService.removerFoto(usuarioLogado.getId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/foto")
+    public ResponseEntity<byte[]> obterFotoPerfil(@PathVariable Long id) {
+        byte[] conteudo = fotoPerfilService.buscarFoto(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePublic())
+                .body(conteudo);
+    }
+
     private UsuarioMeDTO montarUsuarioMeDTO(Usuario usuario) {
         boolean ehMotorista = perfilMotoristaRepository.findByUsuarioId(usuario.getId()).isPresent();
         return new UsuarioMeDTO(
@@ -70,8 +101,20 @@ public class UsuarioController {
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getTelefone(),
-                ehMotorista
+                ehMotorista,
+                urlFoto(usuario.getId(), usuario.getFotoKey())
         );
+    }
+
+    private String urlFoto(Long usuarioId, String fotoKey) {
+        if (fotoKey == null) {
+            return null;
+        }
+        return ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/usuarios/{id}/foto")
+                .queryParam("v", fotoKey.substring("foto/".length(), fotoKey.length() - ".jpg".length()))
+                .buildAndExpand(usuarioId)
+                .toUriString();
     }
 
     @GetMapping("/me/caronas")

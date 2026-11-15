@@ -542,14 +542,14 @@ O usuário precisa conseguir manter seus dados de contato atualizados, especialm
 A foto de perfil ajuda os participantes a reconhecerem uns aos outros e contribui para a confiança durante a combinação da viagem.
 
 **Passo a passo**
-- [ ] Decidir com o time **onde** o arquivo fica: pasta local do servidor (mais simples, recomendado para o projeto) ou serviço externo. Registrar a decisão no `README`
-- [ ] Criar `POST /api/usuarios/me/foto` recebendo `multipart/form-data`
-- [ ] Validar **tipo real** do arquivo (JPEG/PNG — conferir os primeiros bytes, não só a extensão) e tamanho máximo (ex.: 2 MB, via `spring.servlet.multipart.max-file-size`)
-- [ ] Gerar nome de arquivo aleatório (UUID) — **nunca** usar o nome enviado pelo usuário, para evitar path traversal
-- [ ] Redimensionar a imagem para no máximo 512×512 antes de salvar (biblioteca [Thumbnailator](https://github.com/coobird/thumbnailator))
-- [ ] Salvar apenas o caminho/URL no campo `fotoUrl` do `Usuario` + migração
-- [ ] Criar `DELETE /api/usuarios/me/foto` para remover a foto
-- [ ] Servir a imagem por uma rota estática ou por `GET /api/usuarios/{id}/foto`
+- [x] Decidir com o time **onde** o arquivo fica: pasta local do servidor (mais simples, recomendado para o projeto) ou serviço externo. Registrar a decisão no `README`
+- [x] Criar `POST /api/usuarios/me/foto` recebendo `multipart/form-data`
+- [x] Validar **tipo real** do arquivo (JPEG/PNG — conferir os primeiros bytes, não só a extensão) e tamanho máximo (ex.: 2 MB, via `spring.servlet.multipart.max-file-size`)
+- [x] Gerar nome de arquivo aleatório (UUID) — **nunca** usar o nome enviado pelo usuário, para evitar path traversal
+- [x] Redimensionar a imagem para no máximo 512×512 antes de salvar (biblioteca [Thumbnailator](https://github.com/coobird/thumbnailator))
+- [x] Salvar apenas a chave do arquivo no campo `fotoKey` do `Usuario`; o caminho de dados é configurável e persistido no volume Docker `arreda_uploads` (sem serviço externo)
+- [x] Criar `DELETE /api/usuarios/me/foto` para remover a foto
+- [x] Servir a imagem publicamente por `GET /api/usuarios/{id}/foto`; upload e remoção exigem autenticação
 
 **Critérios de aceite**
 - [ ] Arquivo maior que o limite retorna 400 com mensagem clara (não 500)
