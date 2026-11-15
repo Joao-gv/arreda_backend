@@ -1,142 +1,61 @@
-    # 🚗 Arreda - Sistema de Caronas 
+# Arreda — Backend
 
-> **Arreda** é uma plataforma moderna para gestão de caronas, desenvolvida por alunos do IFMG pensando na questão de acessibilidade da própria instituição, a plataforma é focada em segurança e praticidade. Desenvolvida com Spring Boot 4 e Java 21.
+API para conectar alunos e servidores em caronas. O backend usa Java 21, Spring Boot 4, Spring Data JPA e PostgreSQL 15.
 
----
+## Executar com Docker Compose
 
-### 📋 Sobre o Projeto
-O Arreda conecta motoristas e passageiros de forma eficiente. O foco inicial é o ambiente universitário/corporativo, onde a confiança é a base para o compartilhamento de viagens.
+Pré-requisito: Docker Desktop instalado e em execução.
 
-### 🛠️ Tecnologias Utilizadas
-- **Backend:** Java 21, Spring Boot 4, Spring Data JPA
-- **Banco de Dados:** PostgreSQL 15 (via Docker)
-- **Documentação:** Swagger (OpenAPI)
-- **Gerenciador de Dependências:** Maven
+1. Se for usar SMTP local, copie `.env.example` para `.env` e configure os valores conforme [as decisões e fluxos do projeto](docs/decisoes-de-projeto.md). Não versione o `.env`.
+2. Na raiz do repositório, construa e inicie a API e o banco:
 
----
-
-### 🗺️ [Roadmap de Desenvolvimento (`ROADMAP.md`)](./ROADMAP.md)
-
-**Para saber o que estamos construindo e qual é o rumo do projeto.**
-
-- Entenda as grandes fases lógicas: `Caronas` e `Reservas`.
-- Acompanhe o que já foi finalizado e veja a lista das tarefas (_features_) que a equipe ainda fará.
-
-
----
-
-### 🏗️ [Arquitetura do Sistema (`ARCHITECTURE.md`)](./ARCHITECTURE.md)
-
-**Para entender a estrutura do banco de dados e as regras do código.**
-- O Diagrama de Banco de Dados (Entidade-Relacionamento) mostrando visualmente como as tabelas se conectam.
-- Boas práticas e padrões de código essenciais que nossa equipe usa para manter a API rápida e organizada.
----
-
-### 🤝 [Diretrizes de Contribuição (`COMMIT_GUIDE.md`)](./COMMIT_GUIDE.md)
-
-**Para saber a forma correta de subir o seu trabalho concluído para o GitHub.**
-
-- Padrão das mensagens dos Commits (`feat:`, `fix:`, `docs:`, etc).
-- O passo a passo de como criar _branches_ e abrir de forma segura um _Pull Request_ (PR).
-
----
-
-### 🚀 Como Executar o Projeto
-
-### Pré-requisitos
-- **Docker Desktop** rodando para executar a API e o PostgreSQL via Compose.
-- **JDK 21** e Maven Wrapper (`mvnw.cmd` no Windows ou `./mvnw` no Linux/macOS) para executar a API pela IDE.
-
-### Executar API e PostgreSQL com Docker
-1. Se for usar SMTP local, copie `.env.example` para `.env` e preencha as configurações necessárias. Não versione o `.env`.
-2. Na raiz do projeto, construa e inicie os serviços:
    ```bash
    docker compose up --build -d
    ```
-3. Acompanhe a inicialização da API:
+
+3. Acompanhe a inicialização:
+
    ```bash
    docker compose logs -f api
    ```
-4. A API ficará disponível em `http://localhost:8080` e o PostgreSQL em `localhost:5433`.
 
-O Compose aguarda o PostgreSQL ficar saudável antes de iniciar a API. As fotos são gravadas no volume nomeado `arreda_uploads`, que continua disponível após reiniciar ou recriar os containers. Não use `docker compose down -v` se quiser preservar os dados dos volumes.
+A API fica em `http://localhost:8080` e o PostgreSQL em `localhost:5433`. As fotos de perfil são mantidas no volume Docker `arreda_uploads`. `docker compose down` preserva esse volume; `docker compose down -v` o remove.
 
-Para parar os serviços sem remover volumes:
+Para parar os containers sem remover os volumes:
+
 ```bash
 docker compose down
 ```
 
-### Executar a API pela IDE
-1. Inicie apenas o PostgreSQL pelo Compose:
+## Executar pela IDE
+
+Pré-requisitos: JDK 21 e IntelliJ IDEA (ou IDE equivalente).
+
+1. Inicie o PostgreSQL:
+
    ```bash
    docker compose up -d db
    ```
-2. Na configuração de execução da IDE, use a raiz do projeto como **Working directory** e execute `br.com.arreda.backend.BackendApplication`.
-3. O backend usará o banco em `localhost:5433` e salvará as fotos em `./uploads`. O `.env` da raiz é importado automaticamente para as configurações locais de e-mail.
 
-O volume nomeado `arreda_uploads` só é montado na API quando ela roda pelo Compose. Na execução pela IDE, `./uploads` é uma pasta local do projeto; mantenha-a ao reiniciar a aplicação.
----
+2. Configure o diretório de trabalho da aplicação como a raiz do repositório e execute `br.com.arreda.backend.BackendApplication`.
 
-### Para testar as rotas da aplicação
-Estamos utilizando o Swagger, portanto basta acessar a seguinte url:
+A API usa o PostgreSQL em `localhost:5433`. As fotos ficam em `./uploads`; essa pasta é local ao projeto e não é o volume Docker nomeado.
 
-    http://localhost:8080/swagger-ui.html
+## Documentação
 
-### Fotos de perfil
+- [Decisões e fluxos do projeto](docs/decisoes-de-projeto.md): autenticação, e-mails e fotos de perfil.
+- [Roadmap](docs/ROADMAP.md): funcionalidades planejadas.
+- [Arquitetura](docs/ARCHITECTURE.md): organização do backend e modelo de dados.
+- [Guia de commits e Pull Requests](docs/COMMIT_GUIDE.md): convenções de contribuição.
 
-- `POST /api/usuarios/me/foto` recebe multipart/form-data com a parte `foto`. Requer autenticação e altera apenas a foto do usuário autenticado.
-- `GET /api/usuarios/{id}/foto` serve a foto publicamente para exibição nos perfis e cards.
-- `DELETE /api/usuarios/me/foto` remove a foto do usuário autenticado.
+## API
 
-São aceitos JPEG e PNG de até 2 MB. O backend valida o conteúdo, converte para JPEG com no máximo 512×512 e persiste o arquivo fora do banco. O PostgreSQL guarda somente uma chave aleatória. No Compose, os arquivos ficam no volume `arreda_uploads`; no modo IDE, ficam em `./uploads`.
+Com a aplicação em execução, acesse o Swagger UI em <http://localhost:8080/swagger-ui.html>.
 
-As respostas de caronas incluem o identificador do motorista, e a lista de passageiros inclui o identificador de cada passageiro. O frontend pode usar esses identificadores para montar a rota pública `GET /api/usuarios/{id}/foto`; uma resposta 404 significa que o usuário ainda não cadastrou foto.
 
----
 
 ## 👥 Equipe
 - **Carlos Eduardo** - *Lider da equipe*
 - **João Vieira** - *Responsável técnico*
 - **João Vitor** -*Responsável pela apresentação*
 - **Victor Fernandes** - *Responsável pela documentação* 
-
-## Configuração de e-mail para desenvolvimento
-
-O backend usa SMTP por meio do `JavaMailSender`. Para testar sem enviar mensagens a pessoas reais, configure uma caixa **Email Sandbox** no Mailtrap e copie os dados SMTP exibidos pela caixa.
-
-1. Copie `.env.example` para `.env` como referência local e preencha `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME` e `MAIL_PASSWORD` com os dados da caixa Mailtrap. Defina `MAIL_FROM` com o remetente exibido na mensagem. `MAIL_SMTP_AUTH` e `MAIL_SMTP_STARTTLS` são opcionais; por padrão, ambos estão habilitados.
-2. O Spring Boot importa automaticamente o `.env` da raiz do projeto (`spring.config.import=optional:file:./.env[.properties]`). Inicie a aplicação com o diretório de trabalho definido como a raiz do projeto; no IntelliJ, confira **Run → Edit Configurations → Working directory**. Em produção, configure as mesmas chaves como variáveis/segredos do ambiente de hospedagem, sem copiar o `.env` local.
-3. Inicie a aplicação e, quando um fluxo chamar `EmailService.enviar(destinatario, assunto, corpoHtml)`, confira a mensagem na caixa Mailtrap.
-
-As opções `MAIL_SMTP_AUTH` e `MAIL_SMTP_STARTTLS` controlam autenticação e STARTTLS. Os arquivos `.env` locais são ignorados pelo Git; compartilhe apenas os nomes das variáveis, nunca os valores das credenciais.
-
-Os templates HTML iniciais estão em `src/main/resources/templates/`. Eles usam os marcadores `{{nome}}`, `{{linkConfirmacao}}` e `{{linkRedefinicao}}`, preenchidos por `TemplateEmail.renderizar`, que escapa os valores para HTML (um nome com `<b>` aparece como texto, sem virar marcação).
-
-## Redefinição de senha
-
-`POST /api/auth/esqueci-senha` recebe `{ "email": "..." }` e sempre responde `200` com a mesma mensagem, exista ou não a conta. São permitidas no máximo **3 solicitações por e-mail a cada 15 minutos** (`429` na 4ª). O e-mail enviado contém um link `redefinir-senha?token=...`; a base do link vem da variável `FRONTEND_URL` (padrão `http://localhost:5173`).
-
-`POST /api/auth/redefinir-senha` recebe `{ "token": "...", "novaSenha": "..." }`. O token `RESET_SENHA` vale **30 minutos** e só pode ser usado uma vez. A regra de senha combinada com o time é: **mínimo 8, máximo 72 caracteres, com pelo menos uma letra e um número**. Ao redefinir, a senha é gravada com BCrypt e **todos os refresh tokens do usuário são revogados** (desloga de todos os dispositivos). Usar um link de redefinição invalida os demais links de redefinição ainda pendentes do mesmo usuário.
-
-## Confirmação de e-mail
-
-Toda conta nasce com `emailVerificado = false`, e o login só é liberado depois da confirmação.
-
-- **Cadastro** (`POST /api/usuarios/register`): além de criar a conta, gera um token `CONFIRMACAO_EMAIL` (válido por **24 horas**) e envia o e-mail "Confirme seu e-mail | Arreda" com o link `${FRONTEND_URL}/confirmar-email?token=...`. Uma falha no envio não impede o cadastro; o usuário pode pedir o reenvio.
-- **`POST /api/auth/confirmar-email`** recebe `{ "token": "..." }` e marca a conta como verificada (`200`). Token inexistente, adulterado, expirado ou já usado → `400` com mensagem amigável (`{ "erro": "...", "status": 400 }`), sem stack trace.
-- **`POST /api/auth/reenviar-confirmacao`** recebe `{ "email": "..." }` e **sempre responde `200` com a mesma mensagem**, exista ou não a conta (ou já esteja verificada). Limite de **1 reenvio por e-mail a cada 2 minutos** (`429` quando excedido; o limite vale para qualquer e-mail, para não revelar cadastros). Usar um link invalida os outros links de confirmação pendentes.
-- **Login** (`POST /api/auth/login`) com senha correta e e-mail não confirmado → `403`:
-
-  ```json
-  { "erro": "Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada e o spam.", "codigo": "EMAIL_NAO_VERIFICADO", "status": 403 }
-  ```
-
-  O frontend deve usar o campo `codigo` para mostrar a tela de "confirme seu e-mail" com o atalho de reenvio. Senha errada continua retornando `401`.
-
-Os limites de solicitação (redefinição e reenvio) ficam em memória (`LimiteSolicitacoes`): zeram quando a aplicação reinicia e valem para uma única instância.
-
-> **Contas criadas antes desta mudança** estão com `email_verificado = false` e passam a receber `403` no login. Elas podem usar o reenvio de confirmação. Em ambiente de desenvolvimento, para liberar as contas existentes de uma vez:
->
-> ```sql
-> UPDATE tb_usuarios SET email_verificado = true WHERE email_verificado = false;
-> ```
