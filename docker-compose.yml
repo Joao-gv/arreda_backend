@@ -23,6 +23,7 @@ services:
       db:
         condition: service_healthy
     environment:
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=America/Sao_Paulo"
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/arredadb
       SPRING_DATASOURCE_USERNAME: arreda_user
       SPRING_DATASOURCE_PASSWORD: ifmg_arreda_app
