@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -50,6 +51,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Desabilita proteção contra CSRF (comum em APIs REST)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // API não guarda estado
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/*/foto").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",

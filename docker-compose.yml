@@ -8,4 +8,38 @@ services:
       POSTGRES_PASSWORD: ifmg_arreda_app
       POSTGRES_DB: arredadb
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arreda_user -d arredadb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    container_name: arreda-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=America/Sao_Paulo"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/arredadb
+      SPRING_DATASOURCE_USERNAME: arreda_user
+      SPRING_DATASOURCE_PASSWORD: ifmg_arreda_app
+      ARREDA_UPLOAD_DIR: /app/uploads
+      MAIL_HOST: ${MAIL_HOST:-localhost}
+      MAIL_PORT: ${MAIL_PORT:-1025}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-noreply@arreda.local}
+      MAIL_SMTP_AUTH: ${MAIL_SMTP_AUTH:-true}
+      MAIL_SMTP_STARTTLS: ${MAIL_SMTP_STARTTLS:-true}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+    ports:
+      - "8080:8080"
+    volumes:
+      - arreda_uploads:/app/uploads
+
+volumes:
+  arreda_uploads:

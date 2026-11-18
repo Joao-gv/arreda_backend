@@ -20,4 +20,5 @@ public class CaronaResumoDTO {
     private StatusCarona statusCarona;
     private String nomeMotorista;
     private StatusParticipacao statusParticipacao; // Será preenchido apenas no papel de Passageiro
+    private Long idMotorista;
 }
