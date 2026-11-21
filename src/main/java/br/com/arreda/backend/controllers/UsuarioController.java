@@ -1,17 +1,11 @@
 package br.com.arreda.backend.controllers;
 
-import br.com.arreda.backend.dto.HistoricoCaronaDTO;
-import br.com.arreda.backend.dto.FotoUploadDTO;
-import br.com.arreda.backend.dto.UsuarioCreateDTO;
-import br.com.arreda.backend.dto.UsuarioMeDTO;
-import br.com.arreda.backend.dto.VeiculoResponseDTO;
+import br.com.arreda.backend.dto.*;
 import br.com.arreda.backend.models.Carona;
 import br.com.arreda.backend.models.Usuario;
-import br.com.arreda.backend.services.CaronaService;
-import br.com.arreda.backend.services.UsuarioService;
-import br.com.arreda.backend.services.VeiculoService;
-import br.com.arreda.backend.services.FotoPerfilService;
+import br.com.arreda.backend.services.*;
 import br.com.arreda.backend.repositories.PerfilMotoristaRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +17,11 @@ import org.springframework.http.CacheControl;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import br.com.arreda.backend.dto.UsuarioUpdateDTO;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.time.Duration;
+
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,24 +31,25 @@ import org.springframework.web.multipart.MultipartFile;
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class UsuarioController {
-   private final UsuarioService usuarioService;
-   private final CaronaService caronaService;
-   private final VeiculoService veiculoService;
-   private final PerfilMotoristaRepository perfilMotoristaRepository;
-   private final FotoPerfilService fotoPerfilService;
+    private final UsuarioService usuarioService;
+    private final CaronaService caronaService;
+    private final VeiculoService veiculoService;
+    private final PerfilMotoristaRepository perfilMotoristaRepository;
+    private final FotoPerfilService fotoPerfilService;
+    private final ExclusaoContaService exclusaoContaService;
 
-   @PostMapping("register")
-    public ResponseEntity<?> registrarUsuario(@Valid @RequestBody UsuarioCreateDTO dto){
-       try{
-           usuarioService.salvarUsuario(dto);
+    @PostMapping("register")
+    public ResponseEntity<?> registrarUsuario(@Valid @RequestBody UsuarioCreateDTO dto) {
+        try {
+            usuarioService.salvarUsuario(dto);
 
-           return ResponseEntity.status(HttpStatus.CREATED)
-                   .body("Usuário cadastrado com sucesso!");
-       } catch (IllegalArgumentException e){
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                   .body(e.getMessage());
-       }
-   }
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Usuário cadastrado com sucesso!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
 
     @GetMapping("/me")
     public ResponseEntity<UsuarioMeDTO> obterUsuarioLogado(
@@ -69,6 +64,16 @@ public class UsuarioController {
         // O id vem do token (principal), nunca do corpo da requisição
         Usuario atualizado = usuarioService.atualizarPerfil(usuarioLogado.getId(), dto);
         return ResponseEntity.ok(montarUsuarioMeDTO(atualizado));
+    }
+
+    @DeleteMapping("/me")
+    @Operation(summary = "Exclui a conta do usuário logado",
+            description = "Anonimiza os dados pessoais (LGPD) e encerra todas as sessões. " + "Exige a senha. Retorna 400 se a senha estiver errada ou se houver carona em andamento.")
+    public ResponseEntity<Void> excluirContaLogada(
+            @AuthenticationPrincipal Usuario usuarioLogado,
+            @Valid @RequestBody ExcluirContaDTO dto) {
+        exclusaoContaService.excluirConta(usuarioLogado.getId(), dto.senha());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value = "/me/foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -141,7 +146,7 @@ public class UsuarioController {
 
         Long idLogado = usuarioLogado.getId();
 
-       List<VeiculoResponseDTO> veiculosDTO = veiculoService.listarVeiculosDoUsuario(idLogado);
+        List<VeiculoResponseDTO> veiculosDTO = veiculoService.listarVeiculosDoUsuario(idLogado);
         return ResponseEntity.ok(veiculosDTO);
     }
 }

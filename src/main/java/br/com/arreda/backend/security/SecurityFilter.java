@@ -1,5 +1,6 @@
 package br.com.arreda.backend.security;
 
+import br.com.arreda.backend.models.Usuario;
 import br.com.arreda.backend.repositories.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,14 +34,13 @@ public class SecurityFilter extends OncePerRequestFilter {
 
             if (!email.isEmpty()) {
 
-                var usuario = repository.findByEmail(email)
-                        .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
-                // Cria o crachá com uma permissão básica para o Controller não barrar (Erro 403 resolvido)
-                var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-                var authentication = new UsernamePasswordAuthenticationToken(usuario, null, authorities);
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                repository.findByEmail(email)
+                        .filter(Usuario::isAtivo)
+                        .ifPresent(usuario -> {
+                            var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+                            var authentication = new UsernamePasswordAuthenticationToken(usuario, null, authorities);
+                            SecurityContextHolder.getContext().setAuthentication(authentication);
+                        });
             }
         }
 
