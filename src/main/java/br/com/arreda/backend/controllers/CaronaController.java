@@ -1,6 +1,9 @@
 package br.com.arreda.backend.controllers;
 
 import br.com.arreda.backend.dto.CaronaCreateDTO;
+import br.com.arreda.backend.dto.ParticipacaoResponseDTO;
+import br.com.arreda.backend.models.Carona;
+import br.com.arreda.backend.models.ParticipacaoCarona;
 import br.com.arreda.backend.models.Usuario;
 import br.com.arreda.backend.services.CaronaService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,7 +35,7 @@ public class CaronaController {
     private final CaronaService caronaService;
 
     @PostMapping("/publicar")
-    public ResponseEntity<Object> publicarCarona(
+    public ResponseEntity<CaronaResponseDTO> publicarCarona(
             @RequestBody @Valid CaronaCreateDTO dto) {
 
         Usuario usuarioLogado =
@@ -40,16 +43,16 @@ public class CaronaController {
                         .getAuthentication()
                         .getPrincipal();
 
-        var caronaSalva =
-                caronaService.publicarCarona(dto, usuarioLogado);
+        Carona caronaSalva = caronaService.publicarCarona(dto, usuarioLogado);
 
+        // Responde com DTO: a entidade levaria CNH, e-mail, telefone e hash da senha do motorista
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(caronaSalva);
+                .body(caronaService.paraResponseDTO(caronaSalva));
     }
 
     @PostMapping("/{id}/solicitar")
-    public ResponseEntity<Object> solicitarParticipacao(
+    public ResponseEntity<ParticipacaoResponseDTO> solicitarParticipacao(
             @PathVariable Long id) {
 
         Usuario usuarioLogado =
@@ -57,12 +60,12 @@ public class CaronaController {
                         .getAuthentication()
                         .getPrincipal();
 
-        var solicitacao =
-                caronaService.solicitarParticipacao(id, usuarioLogado);
+        ParticipacaoCarona solicitacao = caronaService.solicitarParticipacao(id, usuarioLogado);
 
+        // Responde com DTO: a entidade levaria e-mail, telefone e hash da senha do passageiro
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(solicitacao);
+                .body(caronaService.paraParticipacaoDTO(solicitacao));
     }
 
     @PutMapping("/{idCarona}/participacoes/{idParticipacao}/aceitar")
@@ -99,7 +102,7 @@ public class CaronaController {
     }
 
     @GetMapping("/{id}/participacoes")
-    public ResponseEntity<java.util.List<br.com.arreda.backend.dto.ParticipacaoResponseDTO>> buscarParticipacoes(@PathVariable Long id) {
+    public ResponseEntity<java.util.List<ParticipacaoResponseDTO>> buscarParticipacoes(@PathVariable Long id) {
         Usuario usuarioLogado =
                 (Usuario) SecurityContextHolder.getContext()
                         .getAuthentication()
