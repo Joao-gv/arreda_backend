@@ -1,6 +1,7 @@
 package br.com.arreda.backend.repositories;
 
 import br.com.arreda.backend.dto.CaronaResponseDTO;
+import br.com.arreda.backend.enums.StatusCarona;
 import br.com.arreda.backend.models.Carona;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -31,4 +33,5 @@ public interface CaronaRepository extends JpaRepository<Carona, Long> {
             @Param("agora") LocalDateTime agora,
             Pageable pageable
     );
+    boolean existsByPerfilMotoristaUsuarioIdAndStatusIn(Long usuarioId, Collection<StatusCarona> status);
 }

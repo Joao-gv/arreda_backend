@@ -61,7 +61,7 @@ public class AuthController {
         Usuario usuario = usuarioRepository.findByEmail(loginDTO.email())
                 .orElse(null);
 
-        if (usuario == null) {
+        if (usuario == null || !usuario.isAtivo()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("erro", "Email ou senha inválidos."));
         }
