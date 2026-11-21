@@ -10,6 +10,7 @@ import br.com.arreda.backend.exception.RecursoNaoEncontradoException;
 import br.com.arreda.backend.exception.RegraDeNegocioException;
 import br.com.arreda.backend.models.*;
 import br.com.arreda.backend.dto.CaronaResponseDTO;
+import br.com.arreda.backend.dto.ParticipacaoResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
@@ -232,30 +233,12 @@ public class CaronaService {
 
         Page<Carona> caronasPage = caronaRepository.findCaronasDisponiveis(origem, destino, data, agora, pageable);
 
-        // Mapeia a entidade para o DTO higienizado
-        return caronasPage.map(carona -> {
-            String nomeCompleto = carona.getPerfilMotorista().getUsuario().getNome();
-            String primeiroNome = (nomeCompleto != null && nomeCompleto.contains(" "))
-                    ? nomeCompleto.split(" ")[0]
-                    : nomeCompleto;
-
-            return new CaronaResponseDTO(
-                    carona.getId(),
-                    carona.getOrigem(),
-                    carona.getDestino(),
-                    carona.getDataHoraPartida(),
-                    carona.getValorSugerido(),
-                    carona.getVagasDisponiveis(),
-                    primeiroNome,
-                    carona.getVeiculo().getModelo(),
-                    carona.getVeiculo().getCor(),
-                    carona.getPerfilMotorista().getUsuario().getId()
-            );
-        });
+        // Converte cada carona da página para o DTO sem dados pessoais
+        return caronasPage.map(this::paraResponseDTO);
     }
 
     @Transactional(readOnly = true)
-    public List<br.com.arreda.backend.dto.ParticipacaoResponseDTO> buscarParticipacoesDaCarona(Long idCarona, Long idUsuarioAutenticado) {
+    public List<ParticipacaoResponseDTO> buscarParticipacoesDaCarona(Long idCarona, Long idUsuarioAutenticado) {
         Carona carona = caronaRepository.findById(idCarona)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Carona não encontrada."));
 
@@ -267,11 +250,38 @@ public class CaronaService {
         List<ParticipacaoCarona> participacoes = participacaoCaronaRepository.findAllByCaronaIdAndTipo(idCarona, TipoParticipacao.PASSAGEIRO);
 
         return participacoes.stream()
-                .map(p -> new br.com.arreda.backend.dto.ParticipacaoResponseDTO(
-                        p.getId(),
-                        p.getUsuario().getNome(),
-                        p.getStatus(),
-                        p.getUsuario().getId()
-                )).collect(Collectors.toList());
+                .map(this::paraParticipacaoDTO)
+                .collect(Collectors.toList());
+    }
+
+    /** Converte a carona em DTO, sem dados pessoais do motorista (CNH, e-mail, telefone, senha). */
+    public CaronaResponseDTO paraResponseDTO(Carona carona) {
+        String nomeCompleto = carona.getPerfilMotorista().getUsuario().getNome();
+        String primeiroNome = (nomeCompleto != null && nomeCompleto.contains(" "))
+                ? nomeCompleto.split(" ")[0]
+                : nomeCompleto;
+
+        return new CaronaResponseDTO(
+                carona.getId(),
+                carona.getOrigem(),
+                carona.getDestino(),
+                carona.getDataHoraPartida(),
+                carona.getValorSugerido(),
+                carona.getVagasDisponiveis(),
+                primeiroNome,
+                carona.getVeiculo().getModelo(),
+                carona.getVeiculo().getCor(),
+                carona.getPerfilMotorista().getUsuario().getId()
+        );
+    }
+
+    /** Converte a participação em DTO, sem os dados pessoais do passageiro. */
+    public ParticipacaoResponseDTO paraParticipacaoDTO(ParticipacaoCarona participacao) {
+        return new ParticipacaoResponseDTO(
+                participacao.getId(),
+                participacao.getUsuario().getNome(),
+                participacao.getStatus(),
+                participacao.getUsuario().getId()
+        );
     }
 }
